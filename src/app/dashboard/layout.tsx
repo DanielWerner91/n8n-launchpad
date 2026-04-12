@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -13,14 +12,13 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <>
-      <Header user={user ? { email: user.email } : null} />
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+    <div className="flex h-screen bg-background">
+      <DashboardSidebar />
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-[1600px] p-6">
           {children}
         </div>
       </main>
-      <Footer />
-    </>
+    </div>
   );
 }
