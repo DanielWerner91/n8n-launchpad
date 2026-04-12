@@ -17,6 +17,16 @@ export const metadata: Metadata = {
   title: "LaunchPad — Plan & Execute Product Launches",
   description:
     "AI-powered go-to-market strategy generator. Plan your product launch across every channel with a step-by-step playbook.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/logo-launchpad.png",
+  },
+  openGraph: {
+    title: "LaunchPad — Plan & Execute Product Launches",
+    description:
+      "AI-powered go-to-market strategy generator. Plan your product launch across every channel with a step-by-step playbook.",
+    images: ["/logo-launchpad.png"],
+  },
 };
 
 export default function RootLayout({

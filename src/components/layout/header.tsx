@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Rocket, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -25,9 +26,7 @@ export function Header({ user }: { user?: { email?: string } | null }) {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-14 items-center justify-between">
           <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2.5 group">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <Rocket className="size-4" />
-            </div>
+            <Image src="/logo-launchpad.png" alt="LaunchPad" width={28} height={28} className="size-7 rounded-lg" />
             <span className="text-[15px] font-semibold text-foreground tracking-tight">
               LaunchPad
             </span>

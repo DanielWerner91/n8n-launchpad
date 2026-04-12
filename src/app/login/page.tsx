@@ -1,7 +1,7 @@
 "use client";
 
-import { Rocket } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -24,9 +24,7 @@ function LoginForm() {
       <div className="w-full max-w-sm mx-4">
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="flex flex-col items-center gap-4 mb-8">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <Rocket className="size-6" />
-            </div>
+            <Image src="/logo-launchpad.png" alt="LaunchPad" width={48} height={48} className="size-12 rounded-xl" />
             <div className="text-center">
               <h1 className="text-xl font-bold text-foreground">Sign in to LaunchPad</h1>
               <p className="mt-1 text-sm text-muted-foreground">

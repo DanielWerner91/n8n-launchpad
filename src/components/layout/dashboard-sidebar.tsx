@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Rocket, Activity, Plus, FolderKanban } from "lucide-react";
+import { LayoutDashboard, Rocket, Activity, Plus } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -17,9 +18,7 @@ export function DashboardSidebar() {
   return (
     <aside className="flex h-full w-[220px] flex-col border-r border-border bg-card">
       <div className="flex items-center gap-2.5 px-4 py-5">
-        <div className="flex size-7 items-center justify-center rounded-lg bg-foreground">
-          <FolderKanban className="size-3.5 text-background" />
-        </div>
+        <Image src="/logo-launchpad.png" alt="LaunchPad" width={28} height={28} className="size-7 rounded-lg" />
         <span className="text-[14px] font-semibold tracking-tight text-foreground">LaunchPad</span>
       </div>
 
