@@ -17,12 +17,14 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { StageColumn } from "./stage-column";
 import { HealthBadge } from "./health-badge";
+import { ProjectDetailModal } from "./project-detail-modal";
 import { STAGES } from "@/lib/projects/types";
 import type { Project, ProjectStage, HealthStatus } from "@/lib/projects/types";
 
 export function PipelineBoard({ initialProjects }: { initialProjects: Project[] }) {
   const [projects, setProjects] = useState(initialProjects);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Sync with parent when filters change
   useEffect(() => {
@@ -83,6 +85,15 @@ export function PipelineBoard({ initialProjects }: { initialProjects: Project[] 
     [projects]
   );
 
+  const handleCardClick = useCallback((project: Project) => {
+    setSelectedProject(project);
+  }, []);
+
+  const handleProjectUpdate = useCallback((updated: Project) => {
+    setProjects((prev) => prev.map((p) => (p.id === updated.id ? { ...updated, _checklist_total: p._checklist_total, _checklist_completed: p._checklist_completed } : p)));
+    setSelectedProject(updated);
+  }, []);
+
   return (
     <DndContext
       sensors={sensors}
@@ -98,9 +109,16 @@ export function PipelineBoard({ initialProjects }: { initialProjects: Project[] 
             label={stage.label}
             projects={projectsByStage[stage.value] || []}
             index={i}
+            onCardClick={handleCardClick}
           />
         ))}
       </div>
+
+      <ProjectDetailModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+        onProjectUpdate={handleProjectUpdate}
+      />
 
       <DragOverlay>
         {activeProject && (

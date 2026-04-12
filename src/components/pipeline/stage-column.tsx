@@ -13,11 +13,13 @@ export function StageColumn({
   label,
   projects,
   index,
+  onCardClick,
 }: {
   stage: ProjectStage;
   label: string;
   projects: Project[];
   index: number;
+  onCardClick?: (project: Project) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
   const dot = STAGES.find((s) => s.value === stage)?.dot || "bg-muted-foreground";
@@ -52,7 +54,7 @@ export function StageColumn({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: index * 0.04 + i * 0.05 }}
             >
-              <ProjectCard project={project} />
+              <ProjectCard project={project} onCardClick={onCardClick} />
             </motion.div>
           ))}
           {projects.length === 0 && (

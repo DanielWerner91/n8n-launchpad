@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, ExternalLink, Code, ArrowUpRight, Clock, AlertCircle } from "lucide-react";
@@ -28,7 +27,7 @@ function ProjectIcon({ project }: { project: Project }) {
   return <span className="text-lg leading-none shrink-0">{project.icon_emoji}</span>;
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ project, onCardClick }: { project: Project; onCardClick?: (project: Project) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
     data: { project },
@@ -72,7 +71,10 @@ export function ProjectCard({ project }: { project: Project }) {
         <GripVertical className="size-3 text-muted-foreground/40" />
       </div>
 
-      <div className="p-3 pl-5">
+      <div
+        className="p-3 pl-5 cursor-pointer"
+        onClick={() => onCardClick?.(project)}
+      >
         {/* Labels */}
         {project.labels && project.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-2">
@@ -94,12 +96,12 @@ export function ProjectCard({ project }: { project: Project }) {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
             <ProjectIcon project={project} />
-            <Link href={`/dashboard/projects/${project.slug}`} className="group/link flex items-center gap-1 min-w-0">
-              <span className="truncate text-[13px] font-semibold text-foreground group-hover/link:text-accent">
+            <div className="group/link flex items-center gap-1 min-w-0">
+              <span className="truncate text-[13px] font-semibold text-foreground group-hover:text-accent">
                 {project.name}
               </span>
-              <ArrowUpRight className="size-3 shrink-0 text-muted-foreground/30 opacity-0 transition-all group-hover/link:opacity-100 group-hover/link:text-accent" />
-            </Link>
+              <ArrowUpRight className="size-3 shrink-0 text-muted-foreground/30 opacity-0 transition-all group-hover:opacity-100 group-hover:text-accent" />
+            </div>
           </div>
           <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
         </div>
@@ -156,7 +158,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
             {project.links?.github_url && (
               <a href={project.links.github_url} target="_blank" rel="noopener noreferrer" className="rounded-md p-1 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-muted-foreground">
                 <Code className="size-3" />
