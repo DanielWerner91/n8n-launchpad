@@ -122,7 +122,7 @@ export function PipelineBoard({ initialProjects }: { initialProjects: Project[] 
 
       <DragOverlay>
         {activeProject && (
-          <div className="w-[264px] rounded-lg border border-accent/30 bg-card p-3 pl-5 shadow-2xl">
+          <div className="w-[220px] rounded-lg border border-accent/30 bg-card p-3 pl-5 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 {activeProject.logo_url ? (

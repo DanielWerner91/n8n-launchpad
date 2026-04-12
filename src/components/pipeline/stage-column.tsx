@@ -31,7 +31,7 @@ export function StageColumn({
       transition={{ duration: 0.35, delay: index * 0.04 }}
       ref={setNodeRef}
       className={cn(
-        "flex min-h-[300px] w-[264px] flex-shrink-0 flex-col rounded-xl border transition-all duration-200",
+        "flex min-h-[300px] min-w-[180px] flex-1 flex-col rounded-xl border transition-all duration-200",
         isOver ? "border-accent/40 bg-accent/5 shadow-inner" : "border-border bg-muted/40"
       )}
     >
