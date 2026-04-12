@@ -13,6 +13,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import Image from "next/image";
 import { toast } from "sonner";
 import { StageColumn } from "./stage-column";
 import { HealthBadge } from "./health-badge";
@@ -101,7 +102,13 @@ export function PipelineBoard({ initialProjects }: { initialProjects: Project[] 
           <div className="w-[264px] rounded-lg border border-accent/30 bg-card p-3 pl-5 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="text-lg">{activeProject.icon_emoji}</span>
+                {activeProject.logo_url ? (
+                  <div className="size-7 overflow-hidden rounded-md bg-muted ring-1 ring-border">
+                    <Image src={activeProject.logo_url} alt="" width={28} height={28} className="size-7 object-contain" unoptimized />
+                  </div>
+                ) : (
+                  <span className="text-lg">{activeProject.icon_emoji}</span>
+                )}
                 <span className="text-[13px] font-semibold">{activeProject.name}</span>
               </div>
               <HealthBadge health={activeProject.health as HealthStatus} score={activeProject.health_score} />

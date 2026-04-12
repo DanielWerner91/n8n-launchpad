@@ -28,6 +28,7 @@ export interface Project {
   health: HealthStatus;
   health_score: number;
   icon_emoji: string;
+  logo_url: string | null;
   template_slug: string | null;
   links: ProjectLinks;
   metadata: Record<string, unknown>;

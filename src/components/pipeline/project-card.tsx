@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -13,6 +14,24 @@ const progressColors: Record<string, string> = {
   yellow: "bg-amber-500",
   red: "bg-rose-500",
 };
+
+function ProjectIcon({ project }: { project: Project }) {
+  if (project.logo_url) {
+    return (
+      <div className="relative size-7 shrink-0 overflow-hidden rounded-md bg-muted ring-1 ring-border">
+        <Image
+          src={project.logo_url}
+          alt={project.name}
+          width={28}
+          height={28}
+          className="size-7 object-contain"
+          unoptimized
+        />
+      </div>
+    );
+  }
+  return <span className="text-lg leading-none shrink-0">{project.icon_emoji}</span>;
+}
 
 export function ProjectCard({ project }: { project: Project }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -52,7 +71,7 @@ export function ProjectCard({ project }: { project: Project }) {
       <div className="p-3 pl-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-lg leading-none shrink-0">{project.icon_emoji}</span>
+            <ProjectIcon project={project} />
             <Link href={`/dashboard/projects/${project.slug}`} className="group/link flex items-center gap-1 min-w-0">
               <span className="truncate text-[13px] font-semibold text-foreground group-hover/link:text-accent">
                 {project.name}
