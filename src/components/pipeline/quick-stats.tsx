@@ -1,6 +1,7 @@
 "use client";
 
 import { Rocket, AlertTriangle, CheckCircle, BarChart3 } from "lucide-react";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import type { Project } from "@/lib/projects/types";
 
 export function QuickStats({ projects, overdueCount }: { projects: Project[]; overdueCount: number }) {
@@ -17,13 +18,13 @@ export function QuickStats({ projects, overdueCount }: { projects: Project[]; ov
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {stats.map((stat) => (
+      {stats.map((stat, i) => (
         <div key={stat.label} className="rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-accent/20">
           <div className={`inline-flex rounded-lg p-2 ${stat.iconBg}`}>
             <stat.icon className={`size-4 ${stat.iconColor}`} />
           </div>
           <div className="mt-3">
-            <p className="text-3xl font-bold text-foreground">{stat.value}</p>
+            <NumberTicker value={stat.value} delay={i * 0.1} className="text-3xl font-bold text-foreground" />
           </div>
           <p className="mt-1 text-[13px] text-muted-foreground">{stat.label}</p>
         </div>

@@ -19,6 +19,24 @@ export const CHECKLIST_CATEGORIES = [
 
 export type ChecklistCategory = (typeof CHECKLIST_CATEGORIES)[number];
 
+export type Priority = "low" | "medium" | "high" | "urgent";
+
+export const LABELS: { value: string; label: string; color: string }[] = [
+  { value: "saas", label: "SaaS", color: "bg-blue-100 text-blue-700" },
+  { value: "content", label: "Content", color: "bg-purple-100 text-purple-700" },
+  { value: "client", label: "Client", color: "bg-amber-100 text-amber-700" },
+  { value: "internal", label: "Internal", color: "bg-slate-100 text-slate-700" },
+  { value: "revenue", label: "Revenue", color: "bg-emerald-100 text-emerald-700" },
+  { value: "experiment", label: "Experiment", color: "bg-pink-100 text-pink-700" },
+];
+
+export const PRIORITIES: { value: Priority; label: string; color: string; dot: string }[] = [
+  { value: "low", label: "Low", color: "text-slate-500", dot: "bg-slate-400" },
+  { value: "medium", label: "Medium", color: "text-blue-600", dot: "bg-blue-500" },
+  { value: "high", label: "High", color: "text-orange-600", dot: "bg-orange-500" },
+  { value: "urgent", label: "Urgent", color: "text-red-600", dot: "bg-red-500" },
+];
+
 export interface Project {
   id: string;
   slug: string;
@@ -31,6 +49,10 @@ export interface Project {
   logo_url: string | null;
   template_slug: string | null;
   links: ProjectLinks;
+  labels: string[];
+  priority: Priority | null;
+  due_date: string | null;
+  cover_color: string | null;
   metadata: Record<string, unknown>;
   sort_order: number;
   created_at: string;

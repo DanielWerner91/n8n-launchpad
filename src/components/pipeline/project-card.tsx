@@ -4,10 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, ExternalLink, Code, ArrowUpRight } from "lucide-react";
+import { GripVertical, ExternalLink, Code, ArrowUpRight, Clock, AlertCircle } from "lucide-react";
+import { formatDistanceToNow, isPast, differenceInDays } from "date-fns";
 import { HealthBadge } from "./health-badge";
 import { cn } from "@/lib/utils";
 import type { Project, HealthStatus } from "@/lib/projects/types";
+import { LABELS, PRIORITIES } from "@/lib/projects/types";
 
 const progressColors: Record<string, string> = {
   green: "bg-emerald-500",
@@ -19,14 +21,7 @@ function ProjectIcon({ project }: { project: Project }) {
   if (project.logo_url) {
     return (
       <div className="relative size-7 shrink-0 overflow-hidden rounded-md bg-muted ring-1 ring-border">
-        <Image
-          src={project.logo_url}
-          alt={project.name}
-          width={28}
-          height={28}
-          className="size-7 object-contain"
-          unoptimized
-        />
+        <Image src={project.logo_url} alt={project.name} width={28} height={28} className="size-7 object-contain" unoptimized />
       </div>
     );
   }
@@ -48,18 +43,27 @@ export function ProjectCard({ project }: { project: Project }) {
   const completedCount = project._checklist_completed ?? 0;
   const totalCount = project._checklist_total ?? 0;
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const priorityInfo = project.priority ? PRIORITIES.find((p) => p.value === project.priority) : null;
+  const isOverdue = project.due_date ? isPast(new Date(project.due_date)) : false;
+  const daysUntilDue = project.due_date ? differenceInDays(new Date(project.due_date), new Date()) : null;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative rounded-lg border bg-card transition-all duration-200",
+        "group relative rounded-lg border bg-card transition-all duration-200 overflow-hidden",
         isDragging
           ? "border-accent/40 shadow-lg ring-1 ring-accent/20 scale-[1.02]"
           : "border-border hover:border-accent/30 hover:shadow-sm"
       )}
     >
+      {/* Cover color bar */}
+      {project.cover_color && (
+        <div className={cn("h-1 w-full", project.cover_color)} />
+      )}
+
+      {/* Drag handle */}
       <div
         {...attributes}
         {...listeners}
@@ -69,6 +73,24 @@ export function ProjectCard({ project }: { project: Project }) {
       </div>
 
       <div className="p-3 pl-5">
+        {/* Labels */}
+        {project.labels && project.labels.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {project.labels.map((label) => {
+              const info = LABELS.find((l) => l.value === label);
+              return (
+                <span
+                  key={label}
+                  className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold", info?.color || "bg-muted text-muted-foreground")}
+                >
+                  {info?.label || label}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Title row */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
             <ProjectIcon project={project} />
@@ -82,13 +104,21 @@ export function ProjectCard({ project }: { project: Project }) {
           <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
         </div>
 
+        {/* Description preview */}
+        {project.description && (
+          <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground line-clamp-2 pl-[38px]">
+            {project.description}
+          </p>
+        )}
+
+        {/* Progress */}
         {totalCount > 0 && (
-          <div className="mt-3">
-            <div className="flex justify-between mb-1.5">
-              <span className="text-[11px] text-muted-foreground">{completedCount} of {totalCount}</span>
-              <span className="text-[11px] font-medium text-foreground">{progressPct}%</span>
+          <div className="mt-2.5">
+            <div className="flex justify-between mb-1">
+              <span className="text-[10px] text-muted-foreground">{completedCount} of {totalCount}</span>
+              <span className="text-[10px] font-medium text-foreground">{progressPct}%</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className={cn("h-full rounded-full transition-all duration-700 ease-out", progressColors[project.health] || "bg-muted-foreground/30")}
                 style={{ width: `${progressPct}%` }}
@@ -97,20 +127,48 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
         )}
 
-        {(project.links?.github_url || project.links?.live_url) && (
-          <div className="mt-2.5 flex items-center gap-1 border-t border-border pt-2.5">
-            {project.links.github_url && (
+        {/* Footer: priority + due date + links */}
+        <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2">
+          <div className="flex items-center gap-2">
+            {/* Priority */}
+            {priorityInfo && (
+              <span className={cn("flex items-center gap-1 text-[10px] font-medium", priorityInfo.color)}>
+                <span className={cn("size-1.5 rounded-full", priorityInfo.dot)} />
+                {priorityInfo.label}
+              </span>
+            )}
+
+            {/* Due date */}
+            {project.due_date && (
+              <span className={cn(
+                "flex items-center gap-1 text-[10px] font-medium",
+                isOverdue ? "text-red-600" : daysUntilDue !== null && daysUntilDue <= 7 ? "text-amber-600" : "text-muted-foreground"
+              )}>
+                {isOverdue ? <AlertCircle className="size-3" /> : <Clock className="size-3" />}
+                {isOverdue
+                  ? `${formatDistanceToNow(new Date(project.due_date))} overdue`
+                  : daysUntilDue !== null && daysUntilDue <= 7
+                    ? `${daysUntilDue}d left`
+                    : formatDistanceToNow(new Date(project.due_date), { addSuffix: true })
+                }
+              </span>
+            )}
+          </div>
+
+          {/* Links */}
+          <div className="flex items-center gap-0.5">
+            {project.links?.github_url && (
               <a href={project.links.github_url} target="_blank" rel="noopener noreferrer" className="rounded-md p-1 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-muted-foreground">
-                <Code className="size-3.5" />
+                <Code className="size-3" />
               </a>
             )}
-            {project.links.live_url && (
+            {project.links?.live_url && (
               <a href={project.links.live_url} target="_blank" rel="noopener noreferrer" className="rounded-md p-1 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-muted-foreground">
-                <ExternalLink className="size-3.5" />
+                <ExternalLink className="size-3" />
               </a>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
