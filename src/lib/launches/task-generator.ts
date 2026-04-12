@@ -227,8 +227,8 @@ export async function generateLaunchTasks(
       lifecycle_phase: "build", week_number: -6, day_offset: 4, claude_executable: true,
     },
     {
-      title: "Register project in LaunchDeck pipeline",
-      description: "Create a new project in LaunchDeck via its API. Set stage to 'building'. This tracks the app through its full lifecycle in the portfolio kanban.",
+      title: "Register project in LaunchPad pipeline",
+      description: "Create a new project in LaunchPad via its API. Set stage to 'building'. This tracks the app through its full lifecycle in the portfolio kanban.",
       category: "admin", priority: "medium", estimated_minutes: 5,
       lifecycle_phase: "build", week_number: -6, day_offset: 4, claude_executable: true,
     },
