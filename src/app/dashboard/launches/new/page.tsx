@@ -414,7 +414,7 @@ export default function NewLaunchPage() {
             {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating...</> : <>{step === 2 ? "Create Launch" : "Next"} <ArrowRight className="h-4 w-4" /></>}
           </button>
         ) : (
-          <button onClick={() => launchId ? router.push(`/dashboard/${launchId}`) : router.push("/dashboard")} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors">
+          <button onClick={() => launchId ? router.push(`/dashboard/launches/${launchId}`) : router.push("/dashboard/launches")} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors">
             <Rocket className="h-4 w-4" /> Open Command Center
           </button>
         )}

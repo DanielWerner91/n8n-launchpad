@@ -100,7 +100,7 @@ export default function LaunchDetailPage() {
       const res = await fetch(`/api/launches/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Launch deleted");
-      router.push("/dashboard");
+      router.push("/dashboard/launches");
     } catch {
       toast.error("Failed to delete");
       setDeleting(false);
@@ -134,7 +134,7 @@ export default function LaunchDetailPage() {
   if (!launch) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <p className="text-muted-foreground">Launch not found</p>
-      <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft className="size-4" /> Back</Link>
+      <Link href="/dashboard/launches" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft className="size-4" /> Back</Link>
     </div>
   );
 
@@ -148,7 +148,7 @@ export default function LaunchDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/dashboard/launches" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="size-3.5" /> Back to launches
           </Link>
           <div className="flex items-center gap-3 flex-wrap">

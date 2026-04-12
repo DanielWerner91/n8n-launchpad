@@ -45,18 +45,18 @@ export function Header({ user }: { user?: { email?: string } | null }) {
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   )}
                 >
-                  Launches
+                  Pipeline
                 </Link>
                 <Link
-                  href="/dashboard/new"
+                  href="/dashboard/launches"
                   className={cn(
                     "px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors",
-                    pathname === "/dashboard/new"
+                    pathname.startsWith("/dashboard/launches")
                       ? "text-foreground bg-muted"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   )}
                 >
-                  New Launch
+                  Launches
                 </Link>
                 <div className="ml-3 flex items-center gap-2 border-l border-border pl-3">
                   <span className="text-xs text-muted-foreground">{user.email}</span>
@@ -96,14 +96,14 @@ export function Header({ user }: { user?: { email?: string } | null }) {
               onClick={() => setMobileOpen(false)}
               className="block px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted"
             >
-              Launches
+              Pipeline
             </Link>
             <Link
-              href="/dashboard/new"
+              href="/dashboard/launches"
               onClick={() => setMobileOpen(false)}
               className="block px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted"
             >
-              New Launch
+              Launches
             </Link>
             <button
               onClick={handleSignOut}
