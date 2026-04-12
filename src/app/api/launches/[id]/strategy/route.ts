@@ -87,7 +87,7 @@ export async function POST(
 
           if (strategy && launch.launch_target_date) {
             try {
-              const result = await generateLaunchTasks(id, strategy, launch.launch_target_date, launch.niche);
+              const result = await generateLaunchTasks(id, strategy, launch.launch_target_date, launch.niche, launch);
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ tasks_generated: result.count })}\n\n`)
               );

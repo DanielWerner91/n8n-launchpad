@@ -1,6 +1,33 @@
-// Launch Mode V2 types — comprehensive launch orchestration system
+// LaunchPad V3 — Full lifecycle orchestration: idea → build → brand → launch → grow
 
-// ---- V1 types (kept for backward compatibility) ----
+// ---- Lifecycle Phases ----
+// Phase 0: Validate & Plan (idea intake, competitive research, domain check)
+// Phase 1: Build (scaffold, GitHub, Vercel, Supabase, payments, legal, PostHog, security)
+// Phase 2: Brand & Content (Content Flywheel brand, design, social accounts, newsletter)
+// Phase 3: Pre-Launch (account setup, community seeding, content prep, directories, outreach)
+// Phase 4: Launch (hour-by-hour playbook, cross-channel monitoring)
+// Phase 5: Post-Launch & Growth (metrics, content flywheel ongoing, newsletter, iterate)
+
+export type LifecyclePhase =
+  | "validate"      // Phase 0
+  | "build"         // Phase 1
+  | "brand"         // Phase 2
+  | "pre_launch"    // Phase 3
+  | "launch"        // Phase 4
+  | "grow";         // Phase 5
+
+export const LIFECYCLE_PHASE_LABELS: Record<LifecyclePhase, string> = {
+  validate: "Validate & Plan",
+  build: "Build",
+  brand: "Brand & Content",
+  pre_launch: "Pre-Launch",
+  launch: "Launch",
+  grow: "Post-Launch & Growth",
+};
+
+export const LIFECYCLE_PHASE_ORDER: LifecyclePhase[] = [
+  "validate", "build", "brand", "pre_launch", "launch", "grow",
+];
 
 export interface LaunchIntake {
   app_name: string;
@@ -12,7 +39,7 @@ export interface LaunchIntake {
   differentiator: string;
   app_url: string;
   launch_timeline: string;
-  // V2 additions
+  // Technical scaffold fields
   product_url?: string;
   product_status?: string;
   pricing_model?: string;
@@ -21,6 +48,14 @@ export interface LaunchIntake {
   has_audience?: boolean;
   audience_details?: string;
   launch_target_date?: string;
+  // Build phase fields
+  github_repo?: string;
+  vercel_project_id?: string;
+  supabase_project_id?: string;
+  domain?: string;
+  needs_payments?: boolean;
+  needs_auth?: boolean;
+  needs_newsletter?: boolean;
 }
 
 export interface ChannelScore {
@@ -233,6 +268,11 @@ export interface LaunchPhase {
 export type TaskStatus = "pending" | "in_progress" | "completed" | "skipped";
 export type TaskPriority = "critical" | "high" | "medium" | "low";
 export type TaskCategory =
+  | "validate"
+  | "scaffold"
+  | "infrastructure"
+  | "security"
+  | "brand_setup"
   | "account_setup"
   | "community_seeding"
   | "content"
@@ -240,7 +280,9 @@ export type TaskCategory =
   | "outreach"
   | "admin"
   | "launch_day"
-  | "post_launch";
+  | "post_launch"
+  | "analytics"
+  | "newsletter";
 
 export interface LaunchTask {
   id: string;
@@ -341,6 +383,7 @@ export interface Launch {
   launch_timeline: string;
   strategy: GTMStrategy | EnhancedGTMStrategy | null;
   status: LaunchStatus;
+  lifecycle_phase: LifecyclePhase | null;
   launch_date: string | null;
   metrics: LaunchMetrics | null;
   readiness_score: number | null;
@@ -353,6 +396,18 @@ export interface Launch {
   audience_details: string | null;
   pricing_model: string | null;
   product_url: string | null;
+  // Build phase tracking
+  github_repo: string | null;
+  vercel_project_id: string | null;
+  supabase_project_id: string | null;
+  domain: string | null;
+  needs_payments: boolean;
+  needs_auth: boolean;
+  needs_newsletter: boolean;
+  // Integration references
+  launchdeck_project_id: string | null;
+  content_flywheel_brand_id: string | null;
+  posthog_app_name: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -400,6 +455,11 @@ export const PLATFORM_COLORS: Record<string, string> = {
 };
 
 export const TASK_CATEGORY_LABELS: Record<TaskCategory, string> = {
+  validate: "Validation",
+  scaffold: "Scaffold",
+  infrastructure: "Infrastructure",
+  security: "Security",
+  brand_setup: "Brand Setup",
   account_setup: "Account Setup",
   community_seeding: "Community Seeding",
   content: "Content",
@@ -408,9 +468,16 @@ export const TASK_CATEGORY_LABELS: Record<TaskCategory, string> = {
   admin: "Admin",
   launch_day: "Launch Day",
   post_launch: "Post-Launch",
+  analytics: "Analytics",
+  newsletter: "Newsletter",
 };
 
 export const TASK_CATEGORY_COLORS: Record<TaskCategory, string> = {
+  validate: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  scaffold: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  infrastructure: "bg-teal-100 text-teal-700 border-teal-200",
+  security: "bg-red-100 text-red-700 border-red-200",
+  brand_setup: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200",
   account_setup: "bg-blue-100 text-blue-700 border-blue-200",
   community_seeding: "bg-green-100 text-green-700 border-green-200",
   content: "bg-purple-100 text-purple-700 border-purple-200",
@@ -419,4 +486,6 @@ export const TASK_CATEGORY_COLORS: Record<TaskCategory, string> = {
   admin: "bg-slate-100 text-slate-700 border-slate-200",
   launch_day: "bg-emerald-100 text-emerald-700 border-emerald-200",
   post_launch: "bg-violet-100 text-violet-700 border-violet-200",
+  analytics: "bg-sky-100 text-sky-700 border-sky-200",
+  newsletter: "bg-orange-100 text-orange-700 border-orange-200",
 };

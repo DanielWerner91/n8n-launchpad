@@ -12,6 +12,10 @@ interface PhaseTimelineProps {
 }
 
 const WEEK_LABELS: Record<number, string> = {
+  "-8": "Plan",
+  "-7": "Build",
+  "-6": "Polish",
+  "-5": "Brand",
   "-4": "W-4",
   "-3": "W-3",
   "-2": "W-2",
@@ -24,6 +28,10 @@ const WEEK_LABELS: Record<number, string> = {
 };
 
 const WEEK_THEMES: Record<number, string> = {
+  "-8": "Validate & Plan",
+  "-7": "Scaffold & Infra",
+  "-6": "Build & Security",
+  "-5": "Brand & Content",
   "-4": "Account Setup",
   "-3": "Community Entry",
   "-2": "Content Seeding",
@@ -42,7 +50,7 @@ export function PhaseTimeline({
   onWeekSelect,
   selectedWeek,
 }: PhaseTimelineProps) {
-  const weekNumbers = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+  const weekNumbers = [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4];
 
   const weekProgress = new Map<number, { total: number; completed: number }>();
   for (const wn of weekNumbers) {

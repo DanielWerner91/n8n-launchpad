@@ -14,6 +14,7 @@ import {
   FileText,
   Zap,
   Calendar as CalendarIcon,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Launch, LaunchIntake, EnhancedGTMStrategy } from "@/lib/launches/types";
@@ -21,6 +22,7 @@ import { useStreaming } from "@/lib/launches/use-streaming";
 
 const STEPS = [
   { label: "Details", icon: FileText },
+  { label: "Infra", icon: Wrench },
   { label: "Date", icon: CalendarIcon },
   { label: "Strategy", icon: Zap },
   { label: "Review", icon: Rocket },
@@ -64,6 +66,11 @@ export default function NewLaunchPage() {
     has_audience: false,
     audience_details: "",
     launch_target_date: "",
+    github_repo: "",
+    domain: "",
+    needs_payments: true,
+    needs_auth: true,
+    needs_newsletter: false,
   });
 
   const [launchId, setLaunchId] = useState<string | null>(null);
@@ -107,7 +114,7 @@ export default function NewLaunchPage() {
       const launch: Launch = await res.json();
       setLaunchId(launch.id);
       toast.success("Launch created");
-      setStep(2);
+      setStep(3);
     } catch {
       toast.error("Failed to save");
     } finally {
@@ -155,8 +162,9 @@ export default function NewLaunchPage() {
       setStep(1);
       return;
     }
-    if (step === 1) { saveLaunch(); return; }
-    setStep((s) => Math.min(s + 1, 3));
+    if (step === 1) { setStep(2); return; } // Infra -> Date
+    if (step === 2) { saveLaunch(); return; } // Date -> creates launch, jumps to strategy
+    setStep((s) => Math.min(s + 1, 4));
   }
 
   return (
@@ -256,6 +264,46 @@ export default function NewLaunchPage() {
 
         {step === 1 && (
           <div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Infrastructure</h2>
+            <p className="text-sm text-muted-foreground mb-6">Configure what your app needs. This shapes the full lifecycle task list.</p>
+            <div className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">GitHub repo name</label>
+                  <input className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20" placeholder="n8n-my-app" value={intake.github_repo} onChange={(e) => updateIntake("github_repo", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Custom domain</label>
+                  <input className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20" placeholder="myapp.com" value={intake.domain} onChange={(e) => updateIntake("domain", e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">What does this app need?</p>
+                {[
+                  { key: "needs_auth" as const, label: "Google Authentication (Supabase Auth)", desc: "OAuth login, session management, route protection" },
+                  { key: "needs_payments" as const, label: "Payments (Lemon Squeezy)", desc: "Subscription checkout, webhook handler, subscription gating" },
+                  { key: "needs_newsletter" as const, label: "Newsletter (Beehiiv + Content Flywheel)", desc: "Email publication, automated content digests" },
+                ].map((opt) => (
+                  <div key={opt.key} className="flex items-start gap-3">
+                    <button
+                      onClick={() => updateIntake(opt.key, !intake[opt.key])}
+                      className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors", intake[opt.key] ? "border-accent bg-accent" : "border-border")}
+                    >
+                      {intake[opt.key] && <Check className="h-3 w-3 text-accent-foreground" />}
+                    </button>
+                    <div>
+                      <label className="text-sm font-medium text-foreground cursor-pointer" onClick={() => updateIntake(opt.key, !intake[opt.key])}>{opt.label}</label>
+                      <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
             <h2 className="text-lg font-semibold text-foreground mb-1">Launch date</h2>
             <p className="text-sm text-muted-foreground mb-6">Pick your target launch date. We'll calculate a full 8-week timeline.</p>
             <div className="space-y-6">
@@ -286,7 +334,7 @@ export default function NewLaunchPage() {
           </div>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-1">GTM Strategy</h2>
             <p className="text-sm text-muted-foreground mb-6">Comprehensive go-to-market strategy with market analysis, channel playbooks, and timeline.</p>
@@ -339,7 +387,7 @@ export default function NewLaunchPage() {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-1">Review & Launch</h2>
             <p className="text-sm text-muted-foreground mb-6">Your launch is set up. Head to the command center to start executing.</p>
@@ -361,9 +409,9 @@ export default function NewLaunchPage() {
         <button onClick={() => setStep((s) => Math.max(s - 1, 0))} disabled={step === 0} className={cn("inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors", step === 0 && "invisible")}>
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
-        {step < 3 ? (
-          <button onClick={handleNext} disabled={(step === 0 && !intakeValid) || saving || (step === 2 && strategyStreaming)} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50">
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating...</> : <>{step === 1 ? "Create Launch" : "Next"} <ArrowRight className="h-4 w-4" /></>}
+        {step < 4 ? (
+          <button onClick={handleNext} disabled={(step === 0 && !intakeValid) || saving || (step === 3 && strategyStreaming)} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50">
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating...</> : <>{step === 2 ? "Create Launch" : "Next"} <ArrowRight className="h-4 w-4" /></>}
           </button>
         ) : (
           <button onClick={() => launchId ? router.push(`/dashboard/${launchId}`) : router.push("/dashboard")} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors">

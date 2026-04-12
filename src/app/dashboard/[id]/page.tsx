@@ -13,11 +13,15 @@ import {
   Rocket,
   Clock,
   LineChart,
+  BarChart3,
   ListChecks,
   Gauge,
   FolderOpen,
   Save,
   Calendar,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import type {
   Launch,
@@ -56,12 +60,13 @@ function isEnhancedStrategy(strategy: GTMStrategy | EnhancedGTMStrategy | null):
   return "market_analysis" in strategy || "pre_launch_plan" in strategy;
 }
 
-type Tab = "tasks" | "timeline" | "readiness" | "metrics";
+type Tab = "tasks" | "timeline" | "readiness" | "analytics" | "metrics";
 
 const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: "tasks", label: "Today's Tasks", icon: ListChecks },
   { id: "timeline", label: "Timeline", icon: Clock },
   { id: "readiness", label: "Readiness", icon: Gauge },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "metrics", label: "Metrics", icon: LineChart },
 ];
 
@@ -194,6 +199,7 @@ export default function LaunchDetailPage() {
         {activeTab === "tasks" && <TodaysTasks launchId={id} />}
         {activeTab === "timeline" && <TimelineTab launchId={id} />}
         {activeTab === "readiness" && <ReadinessScore launchId={id} />}
+        {activeTab === "analytics" && <AnalyticsTab launchId={id} appName={launch.posthog_app_name || launch.app_name.toLowerCase().replace(/\s+/g, "-")} />}
         {activeTab === "metrics" && <MetricsTab launchId={id} metrics={launch.metrics} onRefresh={fetchLaunch} />}
       </div>
     </div>
@@ -217,7 +223,7 @@ function TimelineTab({ launchId }: { launchId: string }) {
           setSelectedWeek(incomplete.week_number);
           setCurrentWeek(incomplete.week_number);
         } else if (selectedWeek === null) {
-          setSelectedWeek(-4);
+          setSelectedWeek(-8);
         }
       }
     } catch { toast.error("Failed to load timeline"); }
@@ -319,6 +325,122 @@ function MetricsTab({ launchId, metrics, onRefresh }: { launchId: string; metric
         <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50">
           {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />} Save Metrics
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Analytics Tab — PostHog data for this app
+// ---------------------------------------------------------------------------
+
+function AnalyticsTab({ launchId, appName }: { launchId: string; appName: string }) {
+  const [data, setData] = useState<{
+    stats: { pv7d: number; pv_prev: number; visitors_7d: number; sessions_7d: number; pv_30d: number; delta_pct: number | null } | null;
+    topPages: Array<{ path: string; views: number }>;
+    topReferrers: Array<{ referrer: string; sessions: number }>;
+    timeseries: Array<{ date: string; pageviews: number }>;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAnalytics() {
+      try {
+        const res = await fetch(`/api/launches/${launchId}/analytics?app_name=${encodeURIComponent(appName)}`);
+        if (res.ok) setData(await res.json());
+      } catch { /* silent */ }
+      finally { setLoading(false); }
+    }
+    fetchAnalytics();
+  }, [launchId, appName]);
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="size-5 animate-spin text-muted-foreground" /></div>;
+
+  if (!data?.stats) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-12 text-center">
+        <BarChart3 className="mx-auto mb-3 size-10 text-muted-foreground/30" />
+        <p className="text-muted-foreground">No analytics data yet.</p>
+        <p className="text-sm text-muted-foreground mt-1">PostHog data appears once the app is deployed and receiving traffic.</p>
+      </div>
+    );
+  }
+
+  const s = data.stats;
+  const DeltaIcon = s.delta_pct !== null ? (s.delta_pct > 0 ? TrendingUp : s.delta_pct < 0 ? TrendingDown : Minus) : Minus;
+  const deltaColor = s.delta_pct !== null ? (s.delta_pct > 0 ? "text-emerald-600" : s.delta_pct < 0 ? "text-red-600" : "text-muted-foreground") : "text-muted-foreground";
+  const maxPv = Math.max(...(data.timeseries?.map((t) => t.pageviews) || [1]));
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground">Pageviews (7d)</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{s.pv7d.toLocaleString()}</p>
+          {s.delta_pct !== null && (
+            <div className={cn("flex items-center gap-1 mt-1 text-xs font-medium", deltaColor)}>
+              <DeltaIcon className="size-3" />
+              {s.delta_pct > 0 ? "+" : ""}{s.delta_pct}% vs prev week
+            </div>
+          )}
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground">Visitors (7d)</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{s.visitors_7d.toLocaleString()}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground">Sessions (7d)</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{s.sessions_7d.toLocaleString()}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground">Pageviews (30d)</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{s.pv_30d.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {data.timeseries && data.timeseries.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-foreground mb-4">30-Day Traffic</h3>
+          <div className="flex items-end gap-[2px] h-24">
+            {data.timeseries.map((point) => (
+              <div
+                key={point.date}
+                className="flex-1 bg-accent/70 rounded-t-sm hover:bg-accent transition-colors"
+                style={{ height: `${Math.max((point.pageviews / maxPv) * 100, 2)}%` }}
+                title={`${point.date}: ${point.pageviews} pageviews`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 sm:grid-cols-2">
+        {data.topPages && data.topPages.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Top Pages</h3>
+            <div className="space-y-2">
+              {data.topPages.map((page) => (
+                <div key={page.path} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground truncate max-w-[200px]">{page.path}</span>
+                  <span className="font-medium text-foreground">{page.views}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {data.topReferrers && data.topReferrers.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Top Referrers</h3>
+            <div className="space-y-2">
+              {data.topReferrers.map((ref) => (
+                <div key={ref.referrer} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground truncate max-w-[200px]">{ref.referrer}</span>
+                  <span className="font-medium text-foreground">{ref.sessions}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
