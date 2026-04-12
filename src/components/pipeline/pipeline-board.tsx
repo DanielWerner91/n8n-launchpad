@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -23,6 +23,11 @@ import type { Project, ProjectStage, HealthStatus } from "@/lib/projects/types";
 export function PipelineBoard({ initialProjects }: { initialProjects: Project[] }) {
   const [projects, setProjects] = useState(initialProjects);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+
+  // Sync with parent when filters change
+  useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
