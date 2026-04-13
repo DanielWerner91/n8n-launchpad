@@ -27,7 +27,7 @@ export async function GET() {
 
   // Fetch checklist completion counts
   const { data: checklistCounts, error: clError } = await supabase
-    .from("launchdeck_checklist")
+    .from("launchdeck_checklist_items")
     .select("project_id, is_completed")
     .in("project_id", projectIds.length > 0 ? projectIds : ["none"]);
 
