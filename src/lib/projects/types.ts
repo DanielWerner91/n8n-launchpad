@@ -51,6 +51,7 @@ export interface Project {
   links: ProjectLinks;
   labels: string[];
   priority: Priority | null;
+  start_date: string | null;
   due_date: string | null;
   cover_color: string | null;
   metadata: Record<string, unknown>;
@@ -101,6 +102,18 @@ export interface ActivityLogEntry {
   source: ActivitySource;
   created_at: string;
   project?: Pick<Project, "name" | "slug" | "icon_emoji">;
+}
+
+export interface Milestone {
+  id: string;
+  project_id: string;
+  title: string;
+  target_date: string;
+  completed_at: string | null;
+  color: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export function calculateHealthScore(
