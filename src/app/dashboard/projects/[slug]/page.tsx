@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
 import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory } from "@/lib/projects/types";
 import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
 
@@ -321,6 +322,13 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Live status */}
+      {(project.links?.github_url || project.links?.vercel_url) && (
+        <div className="rounded-xl border border-border bg-card px-4 py-3">
+          <ProjectStatusWidget slug={slug} />
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
