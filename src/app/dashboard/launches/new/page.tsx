@@ -71,6 +71,7 @@ export default function NewLaunchPage() {
     needs_payments: true,
     needs_auth: true,
     needs_newsletter: false,
+    needs_mobile: false,
   });
 
   const [launchId, setLaunchId] = useState<string | null>(null);
@@ -283,6 +284,7 @@ export default function NewLaunchPage() {
                   { key: "needs_auth" as const, label: "Google Authentication (Supabase Auth)", desc: "OAuth login, session management, route protection" },
                   { key: "needs_payments" as const, label: "Payments (Lemon Squeezy)", desc: "Subscription checkout, webhook handler, subscription gating" },
                   { key: "needs_newsletter" as const, label: "Newsletter (Beehiiv + Content Flywheel)", desc: "Email publication, automated content digests" },
+                  { key: "needs_mobile" as const, label: "Mobile App (Expo + App Store)", desc: "iOS + Android native app, push notifications, in-app purchases (RevenueCat)" },
                 ].map((opt) => (
                   <div key={opt.key} className="flex items-start gap-3">
                     <button

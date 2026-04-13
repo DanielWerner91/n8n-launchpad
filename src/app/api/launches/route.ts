@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       needs_payments: body.needs_payments ?? true,
       needs_auth: body.needs_auth ?? true,
       needs_newsletter: body.needs_newsletter ?? false,
+      needs_mobile: body.needs_mobile ?? false,
       posthog_app_name: body.posthog_app_name || body.app_name?.toLowerCase().replace(/\s+/g, "-") || null,
     })
     .select()

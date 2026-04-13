@@ -56,6 +56,7 @@ export interface LaunchIntake {
   needs_payments?: boolean;
   needs_auth?: boolean;
   needs_newsletter?: boolean;
+  needs_mobile?: boolean;
 }
 
 export interface ChannelScore {
@@ -404,6 +405,7 @@ export interface Launch {
   needs_payments: boolean;
   needs_auth: boolean;
   needs_newsletter: boolean;
+  needs_mobile: boolean;
   // Integration references
   launchdeck_project_id: string | null;
   content_flywheel_brand_id: string | null;
