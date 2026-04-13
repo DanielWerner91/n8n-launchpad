@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Menu, X } from "lucide-react";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -15,12 +16,26 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <aside className="flex h-full w-[220px] flex-col border-r border-border bg-card">
-      <div className="flex items-center gap-2.5 px-4 py-5">
-        <Image src="/logo-launchpad.png" alt="LaunchPad" width={28} height={28} className="size-7 rounded-lg" />
-        <span className="text-[14px] font-semibold tracking-tight text-foreground">LaunchPad</span>
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between px-4 py-5">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Image src="/logo-launchpad.png" alt="LaunchPad" width={28} height={28} className="size-7 rounded-lg" />
+          <span className="text-[14px] font-semibold tracking-tight text-foreground">LaunchPad</span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="md:hidden p-1 text-muted-foreground hover:text-foreground rounded-md"
+        >
+          <X className="size-5" />
+        </button>
       </div>
 
       <nav className="flex-1 px-2 py-1">
@@ -65,6 +80,43 @@ export function DashboardSidebar() {
           New Launch
         </Link>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card px-4 py-3">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <Image src="/logo-launchpad.png" alt="LaunchPad" width={24} height={24} className="size-6 rounded-lg" />
+          <span className="text-[14px] font-semibold tracking-tight text-foreground">LaunchPad</span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="p-1.5 text-muted-foreground hover:text-foreground rounded-md"
+        >
+          <Menu className="size-5" />
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-black/40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar: hidden on mobile, shown as overlay when open */}
+      <aside
+        className={cn(
+          "flex h-full w-[220px] shrink-0 flex-col border-r border-border bg-card",
+          "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:shadow-xl max-md:transition-transform max-md:duration-200",
+          mobileOpen ? "max-md:translate-x-0" : "max-md:-translate-x-full"
+        )}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

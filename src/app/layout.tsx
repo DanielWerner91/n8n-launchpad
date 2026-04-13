@@ -14,15 +14,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LaunchPad — Plan & Execute Product Launches",
+  title: {
+    default: "LaunchPad - Plan & Execute Product Launches",
+    template: "%s | LaunchPad",
+  },
   description:
     "AI-powered go-to-market strategy generator. Plan your product launch across every channel with a step-by-step playbook.",
+  metadataBase: new URL("https://launchpad-six-tau.vercel.app"),
   icons: {
     icon: "/favicon.ico",
     apple: "/logo-launchpad.png",
   },
   openGraph: {
-    title: "LaunchPad — Plan & Execute Product Launches",
+    type: "website",
+    siteName: "LaunchPad",
+    title: "LaunchPad - Plan & Execute Product Launches",
+    description:
+      "AI-powered go-to-market strategy generator. Plan your product launch across every channel with a step-by-step playbook.",
+    images: ["/logo-launchpad.png"],
+  },
+  twitter: {
+    card: "summary",
+    title: "LaunchPad - Plan & Execute Product Launches",
     description:
       "AI-powered go-to-market strategy generator. Plan your product launch across every channel with a step-by-step playbook.",
     images: ["/logo-launchpad.png"],

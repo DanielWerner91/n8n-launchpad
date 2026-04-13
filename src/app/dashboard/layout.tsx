@@ -12,10 +12,10 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex flex-col md:flex-row h-screen bg-background">
       <DashboardSidebar />
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-[1600px] p-6">
+        <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
           {children}
         </div>
       </main>
