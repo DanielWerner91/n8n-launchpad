@@ -1,10 +1,35 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  const supabase = createAdminClient();
+// Category groups for the segmented timeline
+const CATEGORY_GROUPS = {
+  build: ["validation", "research", "infrastructure", "deployment", "design", "auth", "payments", "automation", "quality"],
+  marketing: ["marketing", "seo", "legal"],
+  distribution: ["content", "distribution", "growth"],
+} as const;
 
-  // Fetch all non-archived projects with their milestones
+// Key milestone items to auto-detect (matched by substring in label)
+const KEY_MILESTONES = [
+  { match: "brand voice reviewed", label: "Brand Voice Approved", group: "distribution", icon: "voice" },
+  { match: "linkedin company page", label: "LinkedIn Page Created", group: "distribution", icon: "linkedin" },
+  { match: "linkedin page connected", label: "Connected to Content Flywheel", group: "distribution", icon: "pipeline" },
+  { match: "sample posts approved", label: "Content Quality Approved", group: "distribution", icon: "content" },
+  { match: "content scheduled", label: "First Content Scheduled", group: "distribution", icon: "schedule" },
+  { match: "publishing pipeline tested", label: "Publishing Pipeline Live", group: "distribution", icon: "pipeline" },
+  { match: "daily posting active", label: "Daily Posting Active", group: "distribution", icon: "rocket" },
+  { match: "engagement strategy", label: "Engagement Running", group: "distribution", icon: "engage" },
+  { match: "first 100 linkedin", label: "First 100 Followers", group: "distribution", icon: "milestone" },
+  { match: "first 500 linkedin", label: "500 Followers", group: "distribution", icon: "milestone" },
+  { match: "first paying customer", label: "First Paying Customer", group: "distribution", icon: "revenue" },
+  { match: "first 100 registered", label: "100 Organic Signups", group: "distribution", icon: "milestone" },
+  { match: "newsletter", label: "Newsletter Active", group: "marketing", icon: "newsletter" },
+  { match: "landing page live", label: "Landing Page Live", group: "marketing", icon: "launch" },
+  { match: "social media accounts", label: "Social Accounts Set Up", group: "marketing", icon: "social" },
+];
+
+export async function GET() {
+  const supabase = await createClient();
+
   const { data: projects, error: projError } = await supabase
     .from("launchdeck_projects")
     .select("*")
@@ -15,39 +40,76 @@ export async function GET() {
   if (projError) return NextResponse.json({ error: projError.message }, { status: 500 });
 
   const projectIds = (projects || []).map((p) => p.id);
+  if (projectIds.length === 0) return NextResponse.json([]);
 
-  // Fetch milestones for all projects
-  const { data: milestones, error: msError } = await supabase
-    .from("launchdeck_milestones")
-    .select("*")
-    .in("project_id", projectIds.length > 0 ? projectIds : ["none"])
-    .order("target_date");
+  const [{ data: allItems, error: itemsError }, { data: milestones, error: msError }] = await Promise.all([
+    supabase
+      .from("launchdeck_checklist_items")
+      .select("*")
+      .in("project_id", projectIds)
+      .order("sort_order"),
+    supabase
+      .from("launchdeck_milestones")
+      .select("*")
+      .in("project_id", projectIds)
+      .order("target_date"),
+  ]);
 
+  if (itemsError) return NextResponse.json({ error: itemsError.message }, { status: 500 });
   if (msError) return NextResponse.json({ error: msError.message }, { status: 500 });
 
-  // Fetch checklist completion counts
-  const { data: checklistCounts, error: clError } = await supabase
-    .from("launchdeck_checklist_items")
-    .select("project_id, is_completed")
-    .in("project_id", projectIds.length > 0 ? projectIds : ["none"]);
+  const timelineProjects = (projects || []).map((p) => {
+    const items = (allItems || []).filter((i) => i.project_id === p.id);
 
-  if (clError) return NextResponse.json({ error: clError.message }, { status: 500 });
+    // Group by category group
+    const groups: Record<string, { total: number; completed: number; categories: Record<string, { total: number; completed: number }> }> = {};
+    for (const [groupName, cats] of Object.entries(CATEGORY_GROUPS)) {
+      const groupItems = items.filter((i) => (cats as readonly string[]).includes(i.category));
+      const catMap: Record<string, { total: number; completed: number }> = {};
+      for (const cat of cats) {
+        const catItems = groupItems.filter((i) => i.category === cat);
+        if (catItems.length > 0) {
+          catMap[cat] = {
+            total: catItems.length,
+            completed: catItems.filter((i) => i.is_completed).length,
+          };
+        }
+      }
+      groups[groupName] = {
+        total: groupItems.length,
+        completed: groupItems.filter((i) => i.is_completed).length,
+        categories: catMap,
+      };
+    }
 
-  // Aggregate checklist counts per project
-  const checklistMap: Record<string, { total: number; completed: number }> = {};
-  for (const item of checklistCounts || []) {
-    if (!checklistMap[item.project_id]) checklistMap[item.project_id] = { total: 0, completed: 0 };
-    checklistMap[item.project_id].total++;
-    if (item.is_completed) checklistMap[item.project_id].completed++;
-  }
+    // Auto-detect key milestones from checklist items
+    const autoMilestones = KEY_MILESTONES.map((km) => {
+      const item = items.find((i) => i.label.toLowerCase().includes(km.match));
+      if (!item) return null;
+      return {
+        id: `auto_${item.id}`,
+        label: km.label,
+        group: km.group,
+        icon: km.icon,
+        is_completed: item.is_completed,
+        completed_at: item.completed_at,
+        checklist_item_id: item.id,
+      };
+    }).filter(Boolean);
 
-  // Build timeline data
-  const timelineProjects = (projects || []).map((p) => ({
-    ...p,
-    _checklist_total: checklistMap[p.id]?.total ?? 0,
-    _checklist_completed: checklistMap[p.id]?.completed ?? 0,
-    _milestones: (milestones || []).filter((m) => m.project_id === p.id),
-  }));
+    // Overall totals
+    const total = items.length;
+    const completed = items.filter((i) => i.is_completed).length;
+
+    return {
+      ...p,
+      _checklist_total: total,
+      _checklist_completed: completed,
+      _groups: groups,
+      _auto_milestones: autoMilestones,
+      _milestones: (milestones || []).filter((m) => m.project_id === p.id),
+    };
+  });
 
   return NextResponse.json(timelineProjects);
 }
