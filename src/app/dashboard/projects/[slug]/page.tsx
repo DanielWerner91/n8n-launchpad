@@ -7,7 +7,7 @@ import Link from "next/link";
 import {
   ArrowLeft, Check, ExternalLink, Code, Globe, Database,
   Clock, AlertCircle, Shield, Sparkles, Scale, Zap,
-  Loader2, CheckCircle, Tag, Flag,
+  Loader2, CheckCircle, Tag, Flag, MessageSquare, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
@@ -42,7 +42,10 @@ export default function ProjectDetailPage() {
   const [audits, setAudits] = useState<Audit[]>([]);
   const [activity, setActivity] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"checklist" | "audits" | "activity">("checklist");
+  const [comments, setComments] = useState<{ id: string; content: string; source: string; created_at: string }[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [activeTab, setActiveTab] = useState<"checklist" | "audits" | "comments" | "activity">("checklist");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
 
@@ -65,6 +68,12 @@ export default function ProjectDetailPage() {
           })));
           setActivity(detail.activity || []);
         }
+
+        // Fetch comments
+        const commentsRes = await fetch(`/api/projects/${slug}/comments`);
+        if (commentsRes.ok) {
+          setComments(await commentsRes.json());
+        }
       } catch {
         toast.error("Failed to load project");
       } finally {
@@ -73,6 +82,28 @@ export default function ProjectDetailPage() {
     }
     load();
   }, [slug]);
+
+  const submitComment = async () => {
+    if (!newComment.trim()) return;
+    setSubmittingComment(true);
+    try {
+      const res = await fetch(`/api/projects/${slug}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newComment }),
+      });
+      if (res.ok) {
+        const comment = await res.json();
+        setComments((prev) => [comment, ...prev]);
+        setNewComment("");
+        toast.success("Comment added");
+      }
+    } catch {
+      toast.error("Failed to add comment");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
 
   const toggleChecklist = async (item: ChecklistItem) => {
     const newValue = !item.is_completed;
@@ -291,7 +322,7 @@ export default function ProjectDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {(["checklist", "audits", "activity"] as const).map((tab) => (
+        {(["checklist", "audits", "comments", "activity"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -300,7 +331,7 @@ export default function ProjectDetailPage() {
               activeTab === tab ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
-            {tab === "checklist" ? `Checklist (${completedCount}/${totalCount})` : tab === "audits" ? `Audits (${audits.length})` : `Activity (${activity.length})`}
+            {tab === "checklist" ? `Checklist (${completedCount}/${totalCount})` : tab === "audits" ? `Audits (${audits.length})` : tab === "comments" ? `Comments (${comments.length})` : `Activity (${activity.length})`}
           </button>
         ))}
       </div>
@@ -376,6 +407,59 @@ export default function ProjectDetailPage() {
           })}
           {audits.length === 0 && (
             <p className="text-center py-8 text-muted-foreground">No audit schedule configured.</p>
+          )}
+        </div>
+      )}
+
+      {activeTab === "comments" && (
+        <div className="space-y-4">
+          {/* Comment input */}
+          <div className="rounded-xl border border-border bg-card p-4">
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment or note..."
+                  rows={3}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none resize-none"
+                  onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) submitComment(); }}
+                />
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground/50">Cmd+Enter to submit</span>
+                  <button
+                    onClick={submitComment}
+                    disabled={submittingComment || !newComment.trim()}
+                    className="flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-1.5 text-[12px] font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+                  >
+                    <Send className="size-3" />
+                    {submittingComment ? "Posting..." : "Post"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Comment list */}
+          {comments.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card py-12 text-center">
+              <MessageSquare className="mx-auto size-8 text-muted-foreground/20" />
+              <p className="mt-2 text-[13px] text-muted-foreground">No comments yet. Add a note to track decisions and context.</p>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card divide-y divide-border">
+              {comments.map((comment) => (
+                <div key={comment.id} className="px-4 py-3">
+                  <p className="text-[13px] text-foreground whitespace-pre-wrap">{comment.content}</p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                    {comment.source !== "web" && (
+                      <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] font-medium">{comment.source}</span>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

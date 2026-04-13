@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Loader2, Search, Filter, X } from "lucide-react";
+import { Plus, Loader2, Search, Filter, X, LayoutGrid, List, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PipelineBoard } from "@/components/pipeline/pipeline-board";
+import { ListView } from "@/components/pipeline/list-view";
 import { QuickStats } from "@/components/pipeline/quick-stats";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 import type { Project } from "@/lib/projects/types";
 import { LABELS, PRIORITIES } from "@/lib/projects/types";
+
+type ViewMode = "board" | "list";
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -18,6 +22,8 @@ export default function DashboardPage() {
   const [filterLabel, setFilterLabel] = useState<string | null>(null);
   const [filterPriority, setFilterPriority] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -53,7 +59,22 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  // Filter projects
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      switch (e.key) {
+        case "f": e.preventDefault(); setShowFilters((v) => !v); break;
+        case "1": setViewMode("board"); break;
+        case "2": setViewMode("list"); break;
+        case "/": e.preventDefault(); document.querySelector<HTMLInputElement>('[data-search]')?.focus(); break;
+        case "n": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); window.location.href = "/dashboard/projects/new"; } break;
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
   const filtered = projects.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterLabel && (!p.labels || !p.labels.includes(filterLabel))) return false;
@@ -64,11 +85,7 @@ export default function DashboardPage() {
   const hasActiveFilters = search || filterLabel || filterPriority;
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>;
   }
 
   return (
@@ -83,6 +100,19 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Notification bell */}
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Bell className="size-4" />
+            {overdueCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+                {overdueCount}
+              </span>
+            )}
+          </button>
+
           <Link
             href="/dashboard/launches"
             className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
@@ -99,15 +129,21 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Notification center */}
+      {showNotifications && (
+        <NotificationCenter projects={projects} onClose={() => setShowNotifications(false)} />
+      )}
+
       <QuickStats projects={projects} overdueCount={overdueCount} />
 
-      {/* Search + Filters bar */}
+      {/* Toolbar: search + filters + view toggle */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
+            data-search
             type="text"
-            placeholder="Search projects..."
+            placeholder="Search projects...  (/)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-lg border border-border bg-card py-1.5 pl-8 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
@@ -145,6 +181,33 @@ export default function DashboardPage() {
             Clear all
           </button>
         )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* View toggle */}
+        <div className="flex rounded-lg border border-border overflow-hidden">
+          <button
+            onClick={() => setViewMode("board")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+              viewMode === "board" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <LayoutGrid className="size-3.5" />
+            Board
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+              viewMode === "list" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <List className="size-3.5" />
+            List
+          </button>
+        </div>
       </div>
 
       {/* Filter chips */}
@@ -186,11 +249,18 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
+          <div className="ml-auto text-[10px] text-muted-foreground/50">
+            Shortcuts: <kbd className="rounded border border-border px-1 py-0.5 text-[9px]">f</kbd> filter &middot; <kbd className="rounded border border-border px-1 py-0.5 text-[9px]">1</kbd> board &middot; <kbd className="rounded border border-border px-1 py-0.5 text-[9px]">2</kbd> list &middot; <kbd className="rounded border border-border px-1 py-0.5 text-[9px]">/</kbd> search &middot; <kbd className="rounded border border-border px-1 py-0.5 text-[9px]">n</kbd> new
+          </div>
         </div>
       )}
 
-      <PipelineBoard initialProjects={filtered} />
+      {/* Views */}
+      {viewMode === "board" ? (
+        <PipelineBoard initialProjects={filtered} />
+      ) : (
+        <ListView projects={filtered} />
+      )}
     </div>
   );
 }
-

@@ -172,6 +172,12 @@ export async function generateLaunchTasks(
       category: "analytics", priority: "high", estimated_minutes: 20,
       lifecycle_phase: "build", week_number: -7, day_offset: 2, claude_executable: true,
     },
+    {
+      title: "Build user account menu (avatar dropdown + sign out)",
+      description: "Add a <UserMenu /> component in the header (top-right). Show user avatar/initials from Google profile, name, and email. Include Sign Out button (Supabase signOut). If app has payments, link to billing/subscription info. Add 'Delete account' option for GDPR compliance. This is required for every authenticated app.",
+      category: "infrastructure", priority: "high", estimated_minutes: 30,
+      lifecycle_phase: "build", week_number: -7, day_offset: 2, claude_executable: true,
+    },
   );
 
   // Conditional: payments
