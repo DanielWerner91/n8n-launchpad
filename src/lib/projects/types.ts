@@ -70,6 +70,13 @@ export interface ProjectLinks {
   n8n_workflow_ids?: string[];
 }
 
+export interface ChecklistGuidance {
+  approach?: string;
+  skill?: string | null;
+  done_when?: string;
+  references?: string[];
+}
+
 export interface ChecklistItem {
   id: string;
   project_id: string;
@@ -78,6 +85,7 @@ export interface ChecklistItem {
   is_completed: boolean;
   completed_at: string | null;
   notes: string;
+  guidance: ChecklistGuidance;
   sort_order: number;
   created_at: string;
 }

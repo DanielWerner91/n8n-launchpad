@@ -8,6 +8,7 @@ import {
   ArrowLeft, Check, ExternalLink, Code, Globe, Database,
   Clock, AlertCircle, Shield, Sparkles, Scale, Zap,
   Loader2, CheckCircle, Tag, Flag, MessageSquare, Send,
+  ChevronDown, ChevronRight, Terminal, BookOpen, CircleCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
@@ -48,6 +49,7 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState<"checklist" | "audits" | "comments" | "activity">("checklist");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function load() {
@@ -345,24 +347,78 @@ export default function ProjectDetailPage() {
                 {categoryLabels[category as ChecklistCategory] || category}
               </h3>
               <ul className="space-y-1">
-                {items.sort((a, b) => a.sort_order - b.sort_order).map((item) => (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => toggleChecklist(item)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-muted"
-                    >
-                      <span className={cn(
-                        "flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
-                        item.is_completed ? "border-emerald-500 bg-emerald-500 text-white" : "border-border bg-card"
-                      )}>
-                        {item.is_completed && <Check className="size-3" />}
-                      </span>
-                      <span className={cn("text-[13px]", item.is_completed ? "text-muted-foreground line-through" : "text-foreground")}>
-                        {item.label}
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                {items.sort((a, b) => a.sort_order - b.sort_order).map((item) => {
+                  const hasGuidance = item.guidance && (item.guidance.approach || item.guidance.skill || item.guidance.done_when);
+                  const isExpanded = expandedItems.has(item.id);
+                  return (
+                    <li key={item.id}>
+                      <div className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-muted">
+                        <button onClick={() => toggleChecklist(item)} className="flex shrink-0 items-center">
+                          <span className={cn(
+                            "flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                            item.is_completed ? "border-emerald-500 bg-emerald-500 text-white" : "border-border bg-card"
+                          )}>
+                            {item.is_completed && <Check className="size-3" />}
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!hasGuidance) return;
+                            setExpandedItems((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(item.id)) next.delete(item.id);
+                              else next.add(item.id);
+                              return next;
+                            });
+                          }}
+                          className={cn("flex flex-1 items-center gap-1.5", hasGuidance && "cursor-pointer")}
+                        >
+                          <span className={cn("text-[13px]", item.is_completed ? "text-muted-foreground line-through" : "text-foreground")}>
+                            {item.label}
+                          </span>
+                          {hasGuidance && (
+                            isExpanded
+                              ? <ChevronDown className="size-3 text-muted-foreground" />
+                              : <ChevronRight className="size-3 text-muted-foreground" />
+                          )}
+                          {item.guidance?.skill && (
+                            <span className="ml-auto rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-mono font-medium text-accent">
+                              {item.guidance.skill}
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                      {hasGuidance && isExpanded && (
+                        <div className="ml-8 mr-2 mb-2 rounded-lg border border-border/50 bg-muted/50 p-3 space-y-2">
+                          {item.guidance.approach && (
+                            <div className="flex gap-2">
+                              <Terminal className="size-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+                              <p className="text-[12px] text-foreground">{item.guidance.approach}</p>
+                            </div>
+                          )}
+                          {item.guidance.done_when && (
+                            <div className="flex gap-2">
+                              <CircleCheck className="size-3.5 mt-0.5 shrink-0 text-emerald-500" />
+                              <p className="text-[12px] text-muted-foreground">{item.guidance.done_when}</p>
+                            </div>
+                          )}
+                          {item.guidance.references && item.guidance.references.length > 0 && (
+                            <div className="flex gap-2">
+                              <BookOpen className="size-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+                              <div className="flex flex-wrap gap-2">
+                                {item.guidance.references.map((ref, i) => (
+                                  <a key={i} href={ref} target="_blank" rel="noopener noreferrer" className="text-[11px] text-accent hover:underline truncate max-w-[300px]">
+                                    {ref.replace(/^https?:\/\//, '')}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
