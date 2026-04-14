@@ -55,6 +55,7 @@ export interface Project {
   start_date: string | null;
   due_date: string | null;
   cover_color: string | null;
+  is_starred: boolean;
   metadata: Record<string, unknown>;
   sort_order: number;
   created_at: string;

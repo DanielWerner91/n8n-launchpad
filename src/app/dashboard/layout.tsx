@@ -1,4 +1,5 @@
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { ShortcutsOverlay } from "@/components/shortcuts-overlay";
 
 export default async function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default async function DashboardLayout({
           {children}
         </div>
       </main>
+      <ShortcutsOverlay />
     </div>
   );
 }

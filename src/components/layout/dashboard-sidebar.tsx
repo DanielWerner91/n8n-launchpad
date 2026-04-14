@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Calendar, Menu, X, Settings } from "lucide-react";
+import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Calendar, Menu, X, Settings, Target } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "./user-menu";
 
 const navItems = [
+  { href: "/dashboard/focus", label: "Focus", icon: Target, exact: true },
   { href: "/dashboard", label: "Pipeline", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, exact: true },
   { href: "/dashboard/timeline", label: "Timeline", icon: CalendarDays, exact: true },
@@ -81,6 +83,10 @@ export function DashboardSidebar() {
           <Rocket className="size-3.5" />
           New Launch
         </Link>
+      </div>
+
+      <div className="border-t border-border p-2">
+        <UserMenu />
       </div>
     </>
   );

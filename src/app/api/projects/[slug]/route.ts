@@ -53,3 +53,19 @@ export async function PATCH(
 
   return NextResponse.json(data);
 }
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("launchdeck_projects")
+    .delete()
+    .eq("slug", slug);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
+}

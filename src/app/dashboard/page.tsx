@@ -107,12 +107,18 @@ export default function DashboardPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  const filtered = projects.filter((p) => {
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filterLabel && (!p.labels || !p.labels.includes(filterLabel))) return false;
-    if (filterPriority && p.priority !== filterPriority) return false;
-    return true;
-  });
+  const filtered = projects
+    .filter((p) => {
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (filterLabel && (!p.labels || !p.labels.includes(filterLabel))) return false;
+      if (filterPriority && p.priority !== filterPriority) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // Starred first, then by sort_order, then by creation
+      if (a.is_starred !== b.is_starred) return a.is_starred ? -1 : 1;
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
 
   const hasActiveFilters = search || filterLabel || filterPriority;
 

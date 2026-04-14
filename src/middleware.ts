@@ -52,17 +52,31 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if user has completed profile setup (skip for setup page itself)
+  // Uses a cookie flag to avoid hitting the DB on every request
   if (user && pathname.startsWith("/dashboard") && pathname !== "/dashboard/setup") {
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .single();
+    const profileCheckedCookie = request.cookies.get("lp_profile_ok")?.value;
+    const cookieUserId = profileCheckedCookie?.split(":")[0];
 
-    if (!profile) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard/setup";
-      return NextResponse.redirect(url);
+    if (cookieUserId !== user.id) {
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!profile) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard/setup";
+        return NextResponse.redirect(url);
+      }
+
+      // Cache for 1 hour. Bound to user.id so a different user must re-verify.
+      supabaseResponse.cookies.set("lp_profile_ok", `${user.id}:1`, {
+        maxAge: 60 * 60,
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      });
     }
   }
 

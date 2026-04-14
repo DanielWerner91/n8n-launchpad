@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, ExternalLink, Code, ArrowUpRight, Clock, AlertCircle } from "lucide-react";
+import { GripVertical, ExternalLink, Code, ArrowUpRight, Clock, AlertCircle, Star } from "lucide-react";
+import { toast } from "sonner";
 import { formatDistanceToNow, isPast, differenceInDays } from "date-fns";
 import { HealthBadge } from "./health-badge";
+import { ProjectQuickActions } from "./project-quick-actions";
 import { cn } from "@/lib/utils";
 import type { Project, HealthStatus } from "@/lib/projects/types";
 import { LABELS, PRIORITIES } from "@/lib/projects/types";
@@ -27,7 +29,27 @@ function ProjectIcon({ project }: { project: Project }) {
   return <span className="text-lg leading-none shrink-0">{project.icon_emoji}</span>;
 }
 
-export function ProjectCard({ project, onCardClick }: { project: Project; onCardClick?: (project: Project) => void }) {
+export function ProjectCard({ project, onCardClick, onStarToggle }: {
+  project: Project;
+  onCardClick?: (project: Project) => void;
+  onStarToggle?: (id: string, starred: boolean) => void;
+}) {
+  const toggleStar = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = !project.is_starred;
+    onStarToggle?.(project.id, newValue);
+    try {
+      await fetch(`/api/projects/${project.slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_starred: newValue }),
+      });
+    } catch {
+      onStarToggle?.(project.id, !newValue);
+      toast.error("Failed to update");
+    }
+  };
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
     data: { project },
@@ -103,7 +125,22 @@ export function ProjectCard({ project, onCardClick }: { project: Project; onCard
               <ArrowUpRight className="size-3 shrink-0 text-muted-foreground/30 opacity-0 transition-all group-hover:opacity-100 group-hover:text-accent" />
             </div>
           </div>
-          <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              onClick={toggleStar}
+              className={cn(
+                "rounded p-0.5 transition-all",
+                project.is_starred
+                  ? "text-amber-400 hover:text-amber-500"
+                  : "text-muted-foreground/20 opacity-0 group-hover:opacity-100 hover:text-amber-400"
+              )}
+              aria-label={project.is_starred ? "Unstar" : "Star"}
+            >
+              <Star className={cn("size-3.5", project.is_starred && "fill-current")} />
+            </button>
+            <ProjectQuickActions project={project} onUpdate={() => onStarToggle?.(project.id, project.is_starred)} />
+            <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
+          </div>
         </div>
 
         {/* Description preview */}
