@@ -15,6 +15,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
 import { AISummaryWidget } from "@/components/pipeline/ai-summary-widget";
+import { AnalyticsWidget } from "@/components/pipeline/analytics-widget";
 import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory } from "@/lib/projects/types";
 import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
 
@@ -339,6 +340,11 @@ export default function ProjectDetailPage() {
         <div className="rounded-xl border border-border bg-card px-4 py-3">
           <ProjectStatusWidget slug={slug} />
         </div>
+      )}
+
+      {/* PostHog Analytics */}
+      {project.links?.live_url && (project.stage === "live" || project.stage === "scaling") && (
+        <AnalyticsWidget slug={slug} />
       )}
 
       {/* Tabs */}

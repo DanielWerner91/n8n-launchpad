@@ -36,9 +36,15 @@ function sortProjects(projects: Project[], field: SortField, dir: SortDir): Proj
   });
 }
 
-export function ListView({ projects, onCardClick }: { projects: Project[]; onCardClick?: (p: Project) => void }) {
+export function ListView({ projects, onCardClick, selectedIds, onToggleSelect }: {
+  projects: Project[];
+  onCardClick?: (p: Project) => void;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string, shiftKey: boolean) => void;
+}) {
   const [sortField, setSortField] = useState<SortField>("stage");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const hasSelection = !!onToggleSelect;
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -64,7 +70,24 @@ export function ListView({ projects, onCardClick }: { projects: Project[]; onCar
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       {/* Header */}
-      <div className="grid grid-cols-[1fr_100px_80px_80px_100px_100px] gap-4 px-4 py-2.5 border-b border-border bg-muted/30">
+      <div className={cn(
+        "grid gap-4 px-4 py-2.5 border-b border-border bg-muted/30",
+        hasSelection ? "grid-cols-[24px_1fr_100px_80px_80px_100px_100px]" : "grid-cols-[1fr_100px_80px_80px_100px_100px]"
+      )}>
+        {hasSelection && (
+          <input
+            type="checkbox"
+            checked={selectedIds && projects.length > 0 && projects.every((p) => selectedIds.has(p.id))}
+            onChange={(e) => {
+              projects.forEach((p) => {
+                const isSelected = selectedIds?.has(p.id);
+                if (e.target.checked && !isSelected) onToggleSelect?.(p.id, false);
+                if (!e.target.checked && isSelected) onToggleSelect?.(p.id, false);
+              });
+            }}
+            className="size-3.5 rounded border-border"
+          />
+        )}
         <SortHeader field="name" label="Project" />
         <SortHeader field="stage" label="Stage" />
         <SortHeader field="health_score" label="Health" />
@@ -82,12 +105,34 @@ export function ListView({ projects, onCardClick }: { projects: Project[]; onCar
         const totalCount = project._checklist_total ?? 0;
         const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
+        const isSelected = selectedIds?.has(project.id);
         return (
           <div
             key={project.id}
-            onClick={() => onCardClick?.(project)}
-            className="grid grid-cols-[1fr_100px_80px_80px_100px_100px] gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors group"
+            onClick={(e) => {
+              if (hasSelection && (e.metaKey || e.ctrlKey || e.shiftKey)) {
+                onToggleSelect?.(project.id, e.shiftKey);
+              } else {
+                onCardClick?.(project);
+              }
+            }}
+            className={cn(
+              "grid gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors group",
+              hasSelection ? "grid-cols-[24px_1fr_100px_80px_80px_100px_100px]" : "grid-cols-[1fr_100px_80px_80px_100px_100px]",
+              isSelected && "bg-accent/5"
+            )}
           >
+            {hasSelection && (
+              <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="checkbox"
+                  checked={!!isSelected}
+                  onChange={(e) => onToggleSelect?.(project.id, (e.nativeEvent as MouseEvent).shiftKey)}
+                  className="size-3.5 rounded border-border cursor-pointer"
+                />
+              </div>
+            )}
+
             {/* Name + logo + labels + progress */}
             <div className="flex items-center gap-3 min-w-0">
               {project.logo_url ? (

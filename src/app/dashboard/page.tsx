@@ -9,6 +9,7 @@ import { PipelineBoard } from "@/components/pipeline/pipeline-board";
 import { ListView } from "@/components/pipeline/list-view";
 import { QuickStats } from "@/components/pipeline/quick-stats";
 import { NotificationCenter } from "@/components/notifications/notification-center";
+import { BulkActionBar } from "@/components/pipeline/bulk-action-bar";
 import type { Project } from "@/lib/projects/types";
 import { LABELS, PRIORITIES } from "@/lib/projects/types";
 
@@ -24,6 +25,37 @@ export default function DashboardPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const refreshProjects = useCallback(async () => {
+    try {
+      const res = await fetch("/api/projects");
+      if (!res.ok) return;
+      const data = await res.json();
+      const withCounts = await Promise.all(
+        (data || []).map(async (project: Project) => {
+          try {
+            const detailRes = await fetch(`/api/projects/${project.slug}`);
+            if (detailRes.ok) {
+              const detail = await detailRes.json();
+              return { ...project, ...detail };
+            }
+          } catch { /* silent */ }
+          return project;
+        })
+      );
+      setProjects(withCounts);
+    } catch { /* silent */ }
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -133,6 +165,14 @@ export default function DashboardPage() {
       {showNotifications && (
         <NotificationCenter projects={projects} onClose={() => setShowNotifications(false)} />
       )}
+
+      {/* Bulk action bar (when items selected) */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        projects={projects}
+        onClear={() => setSelectedIds(new Set())}
+        onUpdate={refreshProjects}
+      />
 
       <QuickStats projects={projects} overdueCount={overdueCount} />
 
@@ -259,7 +299,7 @@ export default function DashboardPage() {
       {viewMode === "board" ? (
         <PipelineBoard initialProjects={filtered} />
       ) : (
-        <ListView projects={filtered} />
+        <ListView projects={filtered} selectedIds={selectedIds} onToggleSelect={toggleSelect} />
       )}
     </div>
   );
