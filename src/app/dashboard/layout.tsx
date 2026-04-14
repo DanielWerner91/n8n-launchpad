@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 
 export default async function DashboardLayout({
@@ -6,11 +5,6 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background">
       <DashboardSidebar />

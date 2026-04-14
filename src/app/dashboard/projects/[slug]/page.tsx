@@ -14,18 +14,26 @@ import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
+import { AISummaryWidget } from "@/components/pipeline/ai-summary-widget";
 import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory } from "@/lib/projects/types";
 import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
 
 const categoryLabels: Record<ChecklistCategory, string> = {
+  validation: "Idea Validation",
+  research: "Research & Planning",
   infrastructure: "Infrastructure",
-  auth: "Authentication",
-  payments: "Payments",
   deployment: "Deployment",
   design: "Design",
+  auth: "Authentication",
+  payments: "Payments",
   automation: "Automation",
-  marketing: "Marketing",
   legal: "Legal & Compliance",
+  quality: "Quality & Security",
+  seo: "SEO",
+  content: "Content & Brand",
+  marketing: "Marketing",
+  distribution: "Distribution",
+  growth: "Growth",
 };
 
 const auditIcons: Record<string, React.ElementType> = {
@@ -322,6 +330,9 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Summary + Smart Nudges */}
+      <AISummaryWidget slug={slug} />
 
       {/* Live status */}
       {(project.links?.github_url || project.links?.vercel_url) && (

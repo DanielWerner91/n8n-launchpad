@@ -16,14 +16,21 @@ import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory
 import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
 
 const categoryLabels: Record<ChecklistCategory, string> = {
+  validation: "Idea Validation",
+  research: "Research & Planning",
   infrastructure: "Infrastructure",
-  auth: "Authentication",
-  payments: "Payments",
   deployment: "Deployment",
   design: "Design",
+  auth: "Authentication",
+  payments: "Payments",
   automation: "Automation",
-  marketing: "Marketing",
   legal: "Legal & Compliance",
+  quality: "Quality & Security",
+  seo: "SEO",
+  content: "Content & Brand",
+  marketing: "Marketing",
+  distribution: "Distribution",
+  growth: "Growth",
 };
 
 const auditIcons: Record<string, React.ElementType> = {

@@ -14,7 +14,8 @@ export const STAGES: { value: ProjectStage; label: string; dot: string }[] = [
 ];
 
 export const CHECKLIST_CATEGORIES = [
-  "infrastructure", "auth", "payments", "deployment", "design", "automation", "marketing", "legal",
+  "validation", "research", "infrastructure", "deployment", "design", "auth", "payments",
+  "automation", "legal", "quality", "seo", "content", "marketing", "distribution", "growth",
 ] as const;
 
 export type ChecklistCategory = (typeof CHECKLIST_CATEGORIES)[number];
@@ -75,6 +76,7 @@ export interface ChecklistGuidance {
   skill?: string | null;
   done_when?: string;
   references?: string[];
+  playbook?: string;
 }
 
 export interface ChecklistItem {
@@ -86,6 +88,7 @@ export interface ChecklistItem {
   completed_at: string | null;
   notes: string;
   guidance: ChecklistGuidance;
+  stage: ProjectStage;
   sort_order: number;
   created_at: string;
 }
@@ -120,6 +123,19 @@ export interface Milestone {
   completed_at: string | null;
   color: string | null;
   sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserProfile {
+  user_id: string;
+  display_name: string | null;
+  github_username: string | null;
+  vercel_team_id: string | null;
+  default_supabase_project_id: string | null;
+  apps_directory: string;
+  available_skills: string[];
+  tool_preferences: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

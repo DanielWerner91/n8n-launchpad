@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Menu, X } from "lucide-react";
+import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Calendar, Menu, X, Settings } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Pipeline", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, exact: true },
   { href: "/dashboard/timeline", label: "Timeline", icon: CalendarDays, exact: true },
   { href: "/dashboard/launches", label: "Launch Plans", icon: Rocket, exact: false },
   { href: "/dashboard/activity", label: "Activity", icon: Activity, exact: true },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: true },
 ];
 
 export function DashboardSidebar() {

@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -6,7 +6,7 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const body = await req.json();
 
   const { item_id, is_completed } = body;
@@ -21,6 +21,7 @@ export async function PATCH(
     update.completed_at = null;
   }
 
+  // RLS ensures user can only update checklist items for their own projects
   const { data, error } = await supabase
     .from("launchdeck_checklist_items")
     .update(update)

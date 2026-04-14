@@ -11,6 +11,8 @@ export async function POST(
   const { id } = await params;
 
   try {
+    // Strategy generation uses admin client because it needs to write back
+    // during the streaming response (no user session context in stream callbacks)
     const supabase = createAdminClient();
 
     const { data: launch, error: fetchError } = await supabase

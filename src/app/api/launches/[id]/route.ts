@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("launches")
@@ -23,7 +23,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const body = await req.json();
 
   const { data, error } = await supabase
@@ -42,9 +42,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
-  // Delete tasks and phases first
+  // Delete related data first (these tables may not exist yet)
   await supabase.from("launch_tasks").delete().eq("launch_id", id);
   await supabase.from("launch_phases").delete().eq("launch_id", id);
 

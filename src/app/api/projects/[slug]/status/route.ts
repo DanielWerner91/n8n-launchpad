@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: project } = await supabase
     .from("launchdeck_projects")
@@ -28,7 +28,6 @@ export async function GET(
   // Fetch Vercel deployment status
   if (VERCEL_TOKEN && project.links?.vercel_url) {
     try {
-      // Extract project name from vercel URL
       const vercelUrl = project.links.vercel_url as string;
       const projectName = vercelUrl.split("/").pop() || slug;
 
@@ -59,7 +58,6 @@ export async function GET(
       if (match) {
         const repo = match[1];
 
-        // Last commit
         const commitRes = await fetch(
           `https://api.github.com/repos/${repo}/commits?per_page=1`,
           { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" }, next: { revalidate: 300 } }
@@ -76,15 +74,12 @@ export async function GET(
           }
         }
 
-        // Open PRs
         const prRes = await fetch(
           `https://api.github.com/repos/${repo}/pulls?state=open&per_page=1`,
           { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" }, next: { revalidate: 300 } }
         );
 
         if (prRes.ok && result.github) {
-          // GitHub returns Link header with total count
-          const linkHeader = prRes.headers.get("link");
           const prs = await prRes.json();
           result.github.openPRs = prs.length;
         }

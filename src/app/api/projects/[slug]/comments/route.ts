@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: project } = await supabase
     .from("launchdeck_projects")
@@ -31,7 +31,7 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const body = await req.json();
 
   if (!body.content?.trim()) {

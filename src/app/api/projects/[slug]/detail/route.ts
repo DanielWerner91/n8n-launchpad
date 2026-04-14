@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,9 +6,9 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
-  // Get project ID
+  // Get project ID (RLS ensures user can only see their own)
   const { data: project } = await supabase
     .from("launchdeck_projects")
     .select("id")

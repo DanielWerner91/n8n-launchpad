@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: project } = await supabase
     .from("launchdeck_projects")
@@ -31,7 +31,7 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const body = await req.json();
 
   const { data: project } = await supabase
@@ -62,10 +62,9 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const body = await req.json();
 
-  // Verify project ownership
   const { data: project } = await supabase
     .from("launchdeck_projects")
     .select("id")
@@ -91,7 +90,7 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const milestoneId = searchParams.get("id");
 

@@ -1,11 +1,13 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
 
+  // RLS ensures user only sees their own launches
   let query = supabase
     .from("launches")
     .select("*")
@@ -19,12 +21,16 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const supabase = createAdminClient();
+  const auth = await requireAuth();
+  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const supabase = await createClient();
   const body = await req.json();
 
   const { data, error } = await supabase
     .from("launches")
     .insert({
+      user_id: auth.userId,
       app_name: body.app_name,
       app_description: body.app_description || "",
       app_url: body.app_url || null,

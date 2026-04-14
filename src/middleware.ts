@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Protect /api routes - return 401
+  // Protect /api routes (except /api/profile which handles its own auth) - return 401
   if (pathname.startsWith("/api") && !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -49,6 +49,21 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Check if user has completed profile setup (skip for setup page itself)
+  if (user && pathname.startsWith("/dashboard") && pathname !== "/dashboard/setup") {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!profile) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard/setup";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

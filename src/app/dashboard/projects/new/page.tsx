@@ -12,6 +12,7 @@ interface Template {
   name: string;
   description: string;
   checklist: unknown[];
+  is_official?: boolean;
 }
 
 const templateIcons: Record<string, React.ElementType> = {
@@ -88,7 +89,10 @@ export default function NewProjectPage() {
               <Icon className={cn("size-6", selected ? "text-accent" : "text-muted-foreground")} />
               <div>
                 <p className="text-[13px] font-medium text-foreground">{t.name}</p>
-                <p className="text-[11px] text-muted-foreground">{t.checklist.length} tasks</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {t.checklist.length} tasks
+                  {t.is_official && <span className="ml-1 text-[9px] text-accent font-semibold">OFFICIAL</span>}
+                </p>
               </div>
             </button>
           );
