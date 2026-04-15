@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { MoreHorizontal, ExternalLink, Archive, Copy, Trash2, Move, Star } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { STAGES } from "@/lib/projects/types";
 import type { Project, ProjectStage } from "@/lib/projects/types";
 
@@ -18,16 +19,7 @@ export function ProjectQuickActions({
   const [showMove, setShowMove] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-        setShowMove(false);
-      }
-    }
-    if (open) document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
+  useClickOutside(ref, () => { setOpen(false); setShowMove(false); }, open);
 
   const update = async (body: Record<string, unknown>, successMsg: string) => {
     try {

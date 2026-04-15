@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Loader2, Search, Filter, X, LayoutGrid, List, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const router = useRouter();
 
   const refreshProjects = useCallback(async () => {
     try {
@@ -100,25 +102,27 @@ export default function DashboardPage() {
         case "1": setViewMode("board"); break;
         case "2": setViewMode("list"); break;
         case "/": e.preventDefault(); document.querySelector<HTMLInputElement>('[data-search]')?.focus(); break;
-        case "n": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); window.location.href = "/dashboard/projects/new"; } break;
+        case "n": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); router.push("/dashboard/projects/new"); } break;
       }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [router]);
 
-  const filtered = projects
-    .filter((p) => {
-      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-      if (filterLabel && (!p.labels || !p.labels.includes(filterLabel))) return false;
-      if (filterPriority && p.priority !== filterPriority) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      // Starred first, then by sort_order, then by creation
-      if (a.is_starred !== b.is_starred) return a.is_starred ? -1 : 1;
-      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-    });
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return projects
+      .filter((p) => {
+        if (q && !p.name.toLowerCase().includes(q)) return false;
+        if (filterLabel && (!p.labels || !p.labels.includes(filterLabel))) return false;
+        if (filterPriority && p.priority !== filterPriority) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.is_starred !== b.is_starred) return a.is_starred ? -1 : 1;
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+      });
+  }, [projects, search, filterLabel, filterPriority]);
 
   const hasActiveFilters = search || filterLabel || filterPriority;
 

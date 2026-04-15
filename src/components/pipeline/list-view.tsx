@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { ArrowUpDown, ArrowUpRight, ExternalLink, Code, Clock, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { HealthBadge } from "./health-badge";
 import type { Project, HealthStatus, ProjectStage } from "@/lib/projects/types";
@@ -16,6 +16,10 @@ const stageOrder: Record<ProjectStage, number> = {
   idea: 0, research: 1, build: 2, deploy: 3, live: 4, scaling: 5, archived: 6,
 };
 const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
+
+const STAGE_MAP = new Map(STAGES.map((s) => [s.value, s]));
+const LABEL_MAP = new Map(LABELS.map((l) => [l.value, l]));
+const PRIORITY_MAP = new Map(PRIORITIES.map((p) => [p.value, p]));
 
 function sortProjects(projects: Project[], field: SortField, dir: SortDir): Project[] {
   return [...projects].sort((a, b) => {
@@ -55,7 +59,7 @@ export function ListView({ projects, onCardClick, selectedIds, onToggleSelect }:
     }
   };
 
-  const sorted = sortProjects(projects, sortField, sortDir);
+  const sorted = useMemo(() => sortProjects(projects, sortField, sortDir), [projects, sortField, sortDir]);
 
   const SortHeader = ({ field, label, className }: { field: SortField; label: string; className?: string }) => (
     <button
@@ -98,8 +102,8 @@ export function ListView({ projects, onCardClick, selectedIds, onToggleSelect }:
 
       {/* Rows */}
       {sorted.map((project) => {
-        const stageInfo = STAGES.find((s) => s.value === project.stage);
-        const priorityInfo = project.priority ? PRIORITIES.find((p) => p.value === project.priority) : null;
+        const stageInfo = STAGE_MAP.get(project.stage);
+        const priorityInfo = project.priority ? PRIORITY_MAP.get(project.priority) : null;
         const isOverdue = project.due_date ? isPast(new Date(project.due_date)) : false;
         const completedCount = project._checklist_completed ?? 0;
         const totalCount = project._checklist_total ?? 0;
@@ -149,7 +153,7 @@ export function ListView({ projects, onCardClick, selectedIds, onToggleSelect }:
                   </span>
                   <ArrowUpRight className="size-3 shrink-0 text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {project.labels?.map((label) => {
-                    const info = LABELS.find((l) => l.value === label);
+                    const info = LABEL_MAP.get(label);
                     return (
                       <span key={label} className={cn("rounded px-1.5 py-0.5 text-[9px] font-semibold", info?.color || "bg-muted text-muted-foreground")}>
                         {info?.label || label}

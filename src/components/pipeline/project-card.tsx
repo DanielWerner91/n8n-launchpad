@@ -138,7 +138,7 @@ export function ProjectCard({ project, onCardClick, onStarToggle }: {
             >
               <Star className={cn("size-3.5", project.is_starred && "fill-current")} />
             </button>
-            <ProjectQuickActions project={project} onUpdate={() => onStarToggle?.(project.id, project.is_starred)} />
+            <ProjectQuickActions project={project} />
             <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
           </div>
         </div>

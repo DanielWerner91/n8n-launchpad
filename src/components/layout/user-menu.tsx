@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, Settings, ChevronUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { cn } from "@/lib/utils";
 
 export function UserMenu() {
@@ -26,13 +27,7 @@ export function UserMenu() {
     });
   }, []);
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  useClickOutside(ref, () => setOpen(false), open);
 
   const signOut = async () => {
     const supabase = createClient();

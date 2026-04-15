@@ -36,13 +36,13 @@ export function ShortcutsOverlay() {
       if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setOpen((v) => !v);
-      } else if (e.key === "Escape" && open) {
-        setOpen(false);
+      } else if (e.key === "Escape") {
+        setOpen((v) => v ? false : v);
       }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [open]);
+  }, []);
 
   if (!open) return null;
 
