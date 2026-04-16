@@ -2,14 +2,31 @@
 
 > Pipeline stage: build
 > Prerequisites: Phase 4 (Auth) complete
-> Skills: /saas-setup
-> Estimated items: 3 checklist items
+> Skills: /pricing-design (strategy), /saas-setup (implementation)
+> Estimated items: 5 checklist items
 
 ## Overview
 
-Set up Lemon Squeezy for subscription payments with webhook handling and Pro/Free feature gating. Skip this phase entirely if the app doesn't need payments (mark items as N/A).
+Design pricing strategy, then implement Lemon Squeezy subscriptions with webhooks and Pro/Free gating. Skip this phase entirely if the app doesn't need payments (mark items as N/A).
+
+**Order matters:** `/pricing-design` produces `pricing-spec.md` at project root. `/saas-setup` reads that spec to wire up the right variants, trial config, and paywall copy. Skipping the design step is how you end up with a "Start Free Trial" button that has no actual trial behind it (the ChessMind bug).
 
 ## Checklist Items
+
+### [payments] Pricing strategy decided
+**Approach:** Run `/pricing-design`. The skill walks through 5 phases (Discovery → Competitive Anchor → Plan Structure → Price + Trial Decisions → Paywall Copy) and produces `pricing-spec.md` at the project root.
+
+The spec covers:
+- Free vs Pro tier boundaries (mapped to JTBD outcomes, not feature lists)
+- Monthly + annual prices with discount %
+- Trial decision (none / 7d / 14d / 30d / $0.50 nominal) with rationale
+- Paywall headline, value stack, social proof, trust copy, CTA label
+- Lemon Squeezy variant requirements that `/saas-setup` will create
+
+**Skill:** `/pricing-design`
+**Done when:** `pricing-spec.md` exists at project root with all sections filled. No "deferred decisions" that block implementation.
+**References:** ["~/.claude/memory/saas-setup/paywall-patterns.md (25 researched paywall patterns)"]
+**Depends on:** Nothing — can run before or in parallel with auth setup
 
 ### [payments] Lemon Squeezy store configured
 **Approach:** Use `/saas-setup` or manually:
@@ -56,6 +73,16 @@ ALTER TABLE <app>_subscriptions ENABLE ROW LEVEL SECURITY;
 **References:** ["https://docs.lemonsqueezy.com/api/webhooks"]
 **Depends on:** Lemon Squeezy store configured, Supabase tables created
 
+### [payments] Paywall copy matches pricing-spec
+**Approach:** When implementing `<ProOnly>` fallback, upgrade banners, and the pricing page, use the headline / value stack / CTA / trust copy verbatim from `pricing-spec.md`. Do not write generic "Unlock Premium Features" copy — the spec exists specifically to prevent that.
+
+**Anti-pattern check:** Search for "Start Free Trial" / "Start Trial" CTAs across the codebase. If any exist, verify there's a real trial in the Lemon Squeezy variant config. If not, either configure the trial OR change the CTA to "Start Pro." (This was the ChessMind bug: trial CTA with no trial behind it = trust-killer + likely refund requests.)
+
+**Skill:** `/saas-setup`
+**Done when:** Paywall copy in code matches `pricing-spec.md`. No false-trial CTAs. JTBD outcome headline (not feature list). Annual default with monthly behind a link if the spec calls for it.
+**References:** ["pricing-spec.md", "~/.claude/memory/saas-setup/paywall-patterns.md"]
+**Depends on:** Pricing strategy decided, Pro/Free gating implemented
+
 ### [payments] Pro/Free gating implemented
 **Approach:** Create a `useSubscription` hook that checks the user's subscription status:
 ```typescript
@@ -77,13 +104,18 @@ Create a `<ProOnly>` component that conditionally renders children based on subs
 
 ## Decision Points
 
+All of these belong in `pricing-spec.md` (produced by `/pricing-design`), not made ad-hoc during implementation:
+
 - Does this app need payments at all?
-- Monthly vs annual pricing? (Start with monthly, add annual later)
-- What features are gated behind Pro?
-- Free trial period?
+- Monthly + annual pricing decision (default annual with monthly behind link unless spec says otherwise)
+- Free vs Pro tier boundaries — what specifically unlocks?
+- Trial yes/no/length — and if yes, real trial in Lemon Squeezy or it's a lie
 
 ## Common Pitfalls
 
 - **Not verifying webhook signatures.** Anyone can POST to your webhook URL. Always verify.
 - **Hardcoding Lemon Squeezy URLs.** Use environment variables for store/variant IDs.
 - **Forgetting to handle subscription expiry.** Users who cancel still have access until the period ends.
+- **"Start Free Trial" CTA with no trial config.** The ChessMind bug. If the UI promises a trial, the LS variant must have one configured, OR the CTA must be changed.
+- **Generic feature-list paywall copy.** "Unlock Premium Features" converts ~70% worse than JTBD outcome copy (SmartTales pattern, +72% install-to-paid). Use the spec.
+- **Skipping `/pricing-design` to "save time".** You will pay it back 5x in conversion and refund handling. Run the strategy skill first.
