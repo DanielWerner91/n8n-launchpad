@@ -2,8 +2,8 @@
 
 > Pipeline stage: deploy
 > Prerequisites: Phase 3 (Design) complete
-> Skills: /carousel-generator, /infographic-generator, /newsletter-builder
-> Estimated items: 3 checklist items
+> Skills: /carousel-generator, /infographic-generator, /newsletter-builder, /linkedin-profile-optimizer
+> Estimated items: 4 checklist items
 
 ## Overview
 
@@ -64,6 +64,19 @@ This connects the app to the existing content infrastructure for ongoing marketi
 **Done when:** Content Flywheel can generate content for this brand. At least one test piece of content has been generated and reviewed.
 **References:** []
 **Depends on:** Brand voice defined
+
+### [content] Publishing profile optimized
+**Approach:** Before distribution starts, verify the LinkedIn profile that will publish launch content is optimized for credibility in this app's niche. Run `/linkedin-profile-optimizer` which audits and rewrites:
+- Headline (should reference the domain this app serves)
+- About section (should mention relevant experience)
+- Featured section (pin the app or a relevant post)
+- Banner image (should visually connect to the brand)
+
+This is a one-time check per launch. If Daniel's profile was already optimized for a previous launch in a different niche, re-run to verify positioning still works for the new app's audience.
+**Skill:** `/linkedin-profile-optimizer`
+**Done when:** Profile headline, about, featured, and banner are reviewed and aligned to the app's niche. No changes needed = still done (confirmed it fits).
+**References:** []
+**Depends on:** Brand voice defined (need to know the niche and positioning)
 
 ## Decision Points
 

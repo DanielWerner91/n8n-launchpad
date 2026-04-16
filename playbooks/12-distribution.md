@@ -2,7 +2,7 @@
 
 > Pipeline stage: live
 > Prerequisites: Phase 11 (Landing Page) complete
-> Skills: /linkedin-strategy, /newsletter-builder, /carousel-generator
+> Skills: /linkedin-strategy, /linkedin-commenter, /newsletter-builder, /carousel-generator
 > Estimated items: 3 checklist items
 
 ## Overview
@@ -28,8 +28,10 @@ LinkedIn rules (non-negotiable):
 - Use brand voice from Content Flywheel
 
 Generate carousels using `/carousel-generator`. Generate infographics using `/infographic-generator` for data-driven content.
-**Skill:** `/linkedin-strategy`, `/carousel-generator`
-**Done when:** Launch carousel is created and posted. At least 3 follow-up posts are scheduled. First-week engagement is monitored.
+
+**Golden window protocol (first 60 min after posting):** Use `/linkedin-commenter` to engage on high-visibility posts in the niche immediately after publishing launch content. This drives reciprocal engagement during the algorithm's evaluation window.
+**Skill:** `/linkedin-strategy`, `/carousel-generator`, `/linkedin-commenter`
+**Done when:** Launch carousel is created and posted. At least 3 follow-up posts are scheduled. First-week engagement is monitored. Golden-window commenting is active for each post.
 **References:** []
 **Depends on:** Landing page live, Brand voice defined
 
