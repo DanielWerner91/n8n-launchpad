@@ -40,8 +40,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect /api routes - return 401.
-  // /api/v1/* uses Bearer token auth, handled inside each route.
-  if (pathname.startsWith("/api") && !pathname.startsWith("/api/v1") && !user) {
+  // /api/v1/* and /api/mcp use Bearer token auth, handled inside each route.
+  if (
+    pathname.startsWith("/api") &&
+    !pathname.startsWith("/api/v1") &&
+    !pathname.startsWith("/api/mcp") &&
+    !user
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

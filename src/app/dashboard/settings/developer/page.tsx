@@ -30,7 +30,7 @@ export default function DeveloperSettingsPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-muted/30 p-4 text-[12px] text-muted-foreground">
-        <div className="font-semibold text-foreground">Quick start</div>
+        <div className="font-semibold text-foreground">REST API</div>
         <pre className="mt-2 overflow-x-auto rounded bg-background p-2 font-mono text-[11px] text-foreground">
 {`curl https://launchpad-six-tau.vercel.app/api/v1/projects \\
   -H "Authorization: Bearer lp_..."`}
@@ -39,6 +39,31 @@ export default function DeveloperSettingsPage() {
           Full endpoint list:{" "}
           <Link href="/api/v1" className="underline hover:text-foreground">
             /api/v1
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-muted/30 p-4 text-[12px] text-muted-foreground">
+        <div className="font-semibold text-foreground">Model Context Protocol (MCP)</div>
+        <p className="mt-1">
+          Expose LaunchPad projects, features, and checklists to Claude Desktop or Claude Code as MCP tools.
+        </p>
+        <div className="mt-2 text-foreground">Add to your Claude Desktop config (<code className="rounded bg-background px-1">~/Library/Application Support/Claude/claude_desktop_config.json</code>):</div>
+        <pre className="mt-2 overflow-x-auto rounded bg-background p-2 font-mono text-[11px] text-foreground">
+{`{
+  "mcpServers": {
+    "launchpad": {
+      "type": "http",
+      "url": "https://launchpad-six-tau.vercel.app/api/mcp",
+      "headers": { "Authorization": "Bearer lp_..." }
+    }
+  }
+}`}
+        </pre>
+        <div className="mt-2">
+          Details:{" "}
+          <Link href="/api/mcp" className="underline hover:text-foreground">
+            /api/mcp
           </Link>
         </div>
       </div>
