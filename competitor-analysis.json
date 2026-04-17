@@ -1,0 +1,556 @@
+{
+  "meta": {
+    "product": "LaunchPad",
+    "project_slug": "launchpad",
+    "project_id": "4c7b32ef-b281-4445-af55-a25ed0d429c9",
+    "date": "2026-04-17",
+    "depth": "deep",
+    "scope": "Dual-audience: solo-founder tool now, future SaaS for indie hackers/small teams",
+    "strategic_question": null,
+    "roster_size": 20
+  },
+  "frameworks": {
+    "porter": {
+      "rivalry": {"intensity": "high", "note": "Linear/Notion/Asana/ClickUp/Airtable all shipped autonomous AI agents 2025-2026. 20 credible players with overlapping surfaces."},
+      "new_entrants": {"intensity": "high", "note": "AI lowered build cost. Operately v1.0→v1.5 in 9mo. Vibe Kanban 0→25K stars in 9mo."},
+      "substitutes": {"intensity": "medium", "note": "Spreadsheets, Notion DBs, Trello, GitHub Projects. Claude Code + markdown is a real substitute for AI-forward founders."},
+      "buyer_power_smb": {"intensity": "high", "note": "Generous free tier race. Low switching costs."},
+      "buyer_power_enterprise": {"intensity": "low", "note": "SSO/audit/admin lock-in. Not LaunchPad's concern yet."},
+      "supplier_power": {"intensity": "medium", "note": "Anthropic/OpenAI/Gemini pricing leverage. AI-credit compression trend. Infra abundant."}
+    },
+    "swot": {
+      "Asana": {
+        "strengths": ["Product Launch + Campaign templates", "Portfolios for multi-project", "AI Launch Planner Teammate", "200+ integrations", "Enterprise trust"],
+        "weaknesses": ["Heavy for solo founders", "$25+/seat Advanced", "Slow at scale", "1-assignee-per-task", "No PostHog analytics"],
+        "opportunities": ["Founder-simplified pricing", "Deepen AI Studio Pro"],
+        "threats": ["Linear Agent + Notion Custom Agents commoditize 'AI teammate'", "Dart undercuts on price"]
+      },
+      "Operately": {
+        "strengths": ["Apache-2.0 OSS", "Flat pricing (no per-seat)", "Founder pedigree", "Quarterly cadence", "Self-hostable"],
+        "weaknesses": ["Only 442 stars", "No mobile", "Minimal integrations", "Alfred AI in beta", "Solo founder not first-class"],
+        "opportunities": ["Launch-lifecycle templates (2-week sprint)", "Forkable"],
+        "threats": ["Incumbents adding goals+OKRs", "Bootstrapped capital risk"]
+      },
+      "Dart AI": {
+        "strengths": ["Chat-first AI as primary UX", "Generous free tier (4 teammates + agents)", "$8/mo entry (cheapest)", "Fast-shipping 10-person YC team", "4.4/5 G2"],
+        "weaknesses": ["Only $500K raised", "No SOC2 certified", "API early-stage", "No portfolio/launch pipeline", "No mobile"],
+        "opportunities": ["Launch-specific workflows", "Partner with Vibe Kanban"],
+        "threats": ["Incumbents copy AI-chat UX with distribution", "Funding shortfall"]
+      },
+      "Notion": {
+        "strengths": ["100M users, 4M paying", "Notion 3.3 Custom Agents", "Flexible DBs", "SOC2+ISO+BSI+HIPAA", "Thousands of integrations"],
+        "weaknesses": ["Performance degrades >5K rows", "Mobile UX weak", "Steep setup curve", "No native launch pipeline", "Credits billing unpredictable"],
+        "opportunities": ["Launch-specific template marketplace", "Native PostHog embed"],
+        "threats": ["Linear eating PM", "Plane/Operately eating OSS", "AI cost compression"]
+      },
+      "ClickUp": {
+        "strengths": ["Replaces 10+ tools", "Best template library (Product Launch Checklist, GTM Strategy)", "Super Agents Dec 2025", "Portfolios + Goals", "SOC2/ISO/HIPAA"],
+        "weaknesses": ["Kitchen-sink UX", "AI gated $9-28 add-on", "No native launch-pipeline staging", "No founder-focused analytics"],
+        "opportunities": ["Founder-simplified mode", "VibeUp app builder"],
+        "threats": ["Dart undercuts price", "Linear ate eng", "Notion ate knowledge"]
+      },
+      "_thematic": {
+        "other_incumbents": "Linear, Trello, Airtable — strong compliance + ecosystems but not purpose-built for launch. All have AI. None have launch-stage templates.",
+        "ai_native_long_tail": "Tana, Superthread, Plane, workstreams.ai, Taskade, Motion, Vibe Kanban, Chordio — deep AI or niche focus, mostly capital-constrained, none cover portfolio-of-apps-with-launch-stages. Vibe Kanban is a partner not competitor.",
+        "adjacent": "WIP, Sunsama, Capacities — own partial niches but none have real PM + launch. WIP owns the audience; others don't."
+      }
+    },
+    "positioning_map": {
+      "axes": {
+        "x": "Team-first ↔ Solo-founder-first",
+        "y": "Horizontal PM ↔ Launch-lifecycle-specific"
+      },
+      "plots": [
+        {"competitor": "Linear", "x": 0.25, "y": 0.15},
+        {"competitor": "Notion", "x": 0.35, "y": 0.20},
+        {"competitor": "Asana", "x": 0.20, "y": 0.55},
+        {"competitor": "Trello", "x": 0.55, "y": 0.15},
+        {"competitor": "ClickUp", "x": 0.25, "y": 0.45},
+        {"competitor": "Airtable", "x": 0.30, "y": 0.35},
+        {"competitor": "Dart AI", "x": 0.50, "y": 0.15},
+        {"competitor": "Tana", "x": 0.35, "y": 0.15},
+        {"competitor": "Superthread", "x": 0.40, "y": 0.15},
+        {"competitor": "Plane", "x": 0.20, "y": 0.15},
+        {"competitor": "workstreams.ai", "x": 0.30, "y": 0.10},
+        {"competitor": "Taskade", "x": 0.45, "y": 0.20},
+        {"competitor": "Vibe Kanban", "x": 0.50, "y": 0.20},
+        {"competitor": "Chordio", "x": 0.10, "y": 0.30},
+        {"competitor": "Motion", "x": 0.55, "y": 0.20},
+        {"competitor": "WIP", "x": 0.90, "y": 0.30},
+        {"competitor": "Sunsama", "x": 0.75, "y": 0.10},
+        {"competitor": "Capacities", "x": 0.80, "y": 0.10},
+        {"competitor": "Operately", "x": 0.30, "y": 0.25},
+        {"competitor": "LaunchPad", "x": 0.90, "y": 0.95}
+      ],
+      "insight": "Solo-founder-first + launch-lifecycle-specific quadrant is EMPTY. LaunchPad owns it uncontested. Threat vectors: Operately (could add launch templates) or WIP (owns audience, could add PM)."
+    },
+    "strategy_canvas": {
+      "factors": ["Price (low=better)", "AI agent depth", "Launch-lifecycle structure", "Multi-project portfolio view", "Solo-founder UX polish", "Integration breadth", "Enterprise trust", "Shipping velocity", "Built-in product analytics"],
+      "scores": {
+        "Linear":     [5, 9, 1, 4, 5, 8, 9, 8, 0],
+        "Notion":     [6, 9, 2, 5, 4, 9, 10, 9, 0],
+        "Asana":      [3, 9, 5, 6, 2, 9, 10, 7, 0],
+        "ClickUp":    [4, 9, 4, 6, 3, 10, 9, 8, 2],
+        "Dart AI":    [9, 8, 1, 2, 7, 5, 3, 7, 0],
+        "Plane":      [8, 6, 1, 4, 4, 6, 9, 8, 0],
+        "Motion":     [4, 7, 2, 4, 6, 6, 6, 7, 0],
+        "Operately":  [7, 4, 2, 5, 3, 2, 4, 7, 0],
+        "WIP":        [10, 0, 2, 3, 8, 1, 0, 3, 2],
+        "LaunchPad":  [9, 4, 10, 9, 8, 3, 2, 8, 9]
+      },
+      "white_space": ["Launch-lifecycle structure", "Built-in product analytics", "Solo-founder UX polish"],
+      "raise_score_targets": ["AI agent depth (4→9)", "Integration breadth (3→7)", "Enterprise trust (2→7 for SaaS)"]
+    },
+    "jtbd": {
+      "jobs": [
+        "Track portfolio of side projects in one place",
+        "Guide me through launching a product for the first time",
+        "Spot which project is at-risk",
+        "Show real-time analytics per launched product",
+        "Delegate tasks to AI agents autonomously",
+        "Reuse launch playbooks across products",
+        "Keep me accountable to shipping",
+        "Handoff work to Claude Code agent"
+      ],
+      "ratings": {
+        "Linear":     ["partial", "doesnt-address", "partial", "doesnt-address", "nails-it", "doesnt-address", "doesnt-address", "doesnt-address"],
+        "Notion":     ["partial", "claims-but-misses", "partial", "doesnt-address", "nails-it", "partial", "doesnt-address", "partial"],
+        "Asana":      ["partial", "partial", "nails-it", "doesnt-address", "nails-it", "partial", "partial", "doesnt-address"],
+        "ClickUp":    ["partial", "partial", "nails-it", "doesnt-address", "nails-it", "partial", "partial", "doesnt-address"],
+        "Dart AI":    ["claims-but-misses", "doesnt-address", "partial", "doesnt-address", "nails-it", "doesnt-address", "doesnt-address", "partial"],
+        "Motion":     ["partial", "doesnt-address", "partial", "doesnt-address", "nails-it", "doesnt-address", "doesnt-address", "doesnt-address"],
+        "Operately":  ["partial", "doesnt-address", "partial", "doesnt-address", "partial", "partial", "nails-it", "partial"],
+        "WIP":        ["partial", "doesnt-address", "doesnt-address", "partial", "doesnt-address", "doesnt-address", "nails-it", "doesnt-address"],
+        "LaunchPad":  ["nails-it", "nails-it", "nails-it", "nails-it", "partial", "nails-it", "partial", "nails-it"]
+      },
+      "biggest_gap_for_launchpad": "Delegate tasks to AI agents autonomously — competitors nail this, LaunchPad is only partial. Highest-leverage backlog item."
+    },
+    "moat": {
+      "Linear":     {"data": "medium", "network": "medium", "switching": "strong", "brand": "strong", "regulatory": "medium", "overall": "strong"},
+      "Notion":     {"data": "strong", "network": "strong", "switching": "strong", "brand": "strong", "regulatory": "strong", "overall": "very-strong"},
+      "Asana":      {"data": "medium", "network": "medium", "switching": "strong", "brand": "strong", "regulatory": "strong", "overall": "strong"},
+      "Trello":     {"data": "weak", "network": "strong", "switching": "medium", "brand": "strong", "regulatory": "medium", "overall": "strong"},
+      "ClickUp":    {"data": "medium", "network": "medium", "switching": "medium", "brand": "medium", "regulatory": "strong", "overall": "medium"},
+      "Airtable":   {"data": "medium", "network": "medium", "switching": "strong", "brand": "medium", "regulatory": "strong", "overall": "strong"},
+      "Dart AI":    {"data": "weak", "network": "weak", "switching": "weak", "brand": "weak", "regulatory": "none", "overall": "weak"},
+      "Height":     {"data": null, "network": null, "switching": null, "brand": null, "regulatory": null, "overall": "DEFUNCT"},
+      "Tana":       {"data": "weak", "network": "medium", "switching": "medium", "brand": "medium", "regulatory": "weak", "overall": "medium"},
+      "Superthread":{"data": "weak", "network": "weak", "switching": "weak", "brand": "weak", "regulatory": "weak", "overall": "weak"},
+      "Plane":      {"data": "weak", "network": "strong", "switching": "medium", "brand": "medium", "regulatory": "strong", "overall": "medium"},
+      "workstreams.ai": {"data": "weak", "network": "weak", "switching": "weak", "brand": "weak", "regulatory": "weak", "overall": "weak"},
+      "Taskade":    {"data": "weak", "network": "weak", "switching": "weak", "brand": "weak", "regulatory": "weak", "overall": "weak"},
+      "Vibe Kanban":{"data": "none", "network": "strong", "switching": "weak", "brand": "strong", "regulatory": "none", "overall": "medium-niche"},
+      "Chordio":    {"data": "none", "network": "none", "switching": "weak", "brand": "weak", "regulatory": "weak", "overall": "weak"},
+      "Motion":     {"data": "weak", "network": "medium", "switching": "medium", "brand": "strong", "regulatory": "medium", "overall": "medium"},
+      "WIP":        {"data": "weak", "network": "strong", "switching": "weak", "brand": "strong", "regulatory": "none", "overall": "medium-niche"},
+      "Sunsama":    {"data": "weak", "network": "weak", "switching": "medium", "brand": "medium", "regulatory": "weak", "overall": "weak-medium"},
+      "Capacities": {"data": "weak", "network": "weak", "switching": "medium", "brand": "weak", "regulatory": "weak", "overall": "weak"},
+      "Operately":  {"data": "none", "network": "weak", "switching": "weak", "brand": "weak", "regulatory": "none", "overall": "weak"},
+      "LaunchPad":  {"data": "weak", "network": "none", "switching": "weak", "brand": "weak", "regulatory": "none", "overall": "weak-must-build"}
+    }
+  },
+  "gaps": {
+    "white_space": [
+      {"item": "Launch-lifecycle as first-class primitive", "status": "LaunchPad owns this, defend"},
+      {"item": "Built-in product analytics per launched product (PostHog)", "status": "LaunchPad owns this, extend to revenue/replays"},
+      {"item": "Build-in-public micro-site per project", "evidence": "WIP has partial ship log; nobody combines with PM"},
+      {"item": "AI launch coach proactive recommendations", "evidence": "Operately Alfred is closest; nobody has launch-specific"},
+      {"item": "Claude Code ↔ project features bridge", "evidence": "LaunchPad pattern; nobody else formalized (Vibe Kanban is dev-only)"},
+      {"item": "Financial tracking per product (MRR, runway)", "evidence": "WIP touches; none integrate with PM"},
+      {"item": "Competitor auto-audit per project", "evidence": "nobody"},
+      {"item": "PostHog session replay embed per launched product", "evidence": "nobody"}
+    ],
+    "underserved_jtbd": [
+      {"job": "Guide me through launching for the first time", "note": "Only Asana partially via templates. LaunchPad's explicit phase pipeline is unique."},
+      {"job": "Show real-time analytics per launched product", "note": "Zero competitors native. Only LaunchPad."},
+      {"job": "Handoff work to Claude Code agent", "note": "Partial in Dart/Plane/Operately via MCP; LaunchPad feature-backlog pattern."},
+      {"job": "Keep me accountable to shipping", "note": "Only Operately and WIP nail it. LaunchPad should add streaks/check-ins."}
+    ],
+    "adjacent_markets": [
+      "Newsletter automation per product (Content Flywheel pattern)",
+      "Build-in-public community layer (attack WIP)",
+      "Launch playbook library/marketplace (monetize IP)",
+      "AI-agent orchestration for non-code tasks (bridge to Vibe-Kanban territory)"
+    ],
+    "pricing_packaging": [
+      {"gap": "Flat-rate pricing for solo founders", "evidence": "Operately $82/mo 50 users, Taskade $19/mo 10 users. Per-seat hostile to solo founders with VAs."},
+      {"gap": "Generous 'all projects, 1 user' free tier", "evidence": "Dart nails it. SaaS pivot should replicate."},
+      {"gap": "'Builder' tier ($5/mo) between free and paid", "evidence": "Nobody offers this shape for indie hackers with 5-10 projects."}
+    ],
+    "ux_polish": [
+      "Command palette (cmd+k) — Linear, Notion, Height, Dart all have",
+      "Native mobile app — table stakes for SaaS",
+      "Public roadmap / changelog — Linear, Plane, Operately, Capacities, Sunsama have",
+      "Template marketplace — Notion, Asana, ClickUp have"
+    ],
+    "integrations": [
+      "Slack / Discord / Telegram notifications for launch-day",
+      "GitHub webhook for commit-to-project activity",
+      "Vercel integration (unique to LaunchPad audience)",
+      "Supabase integration (unique)",
+      "Zapier / Make (table stakes)",
+      "MCP server (Linear, Notion, Plane, Dart have)"
+    ],
+    "ai_features": [
+      "Chat-with-AI interface — every 2026 competitor has; LaunchPad has only strategy gen",
+      "Autonomous AI agents for task execution — table stakes",
+      "AI task auto-fill / subtask generation — Dart, Asana, Notion have",
+      "AI standups / summaries — Dart has",
+      "MCP server — exposes LaunchPad projects to Claude Desktop/Code",
+      "AI validation agent on new projects — run market scan + competitor audit + domain check",
+      "AI coach (Operately Alfred analog) — proactive from health score"
+    ]
+  },
+  "backlog": [
+    {
+      "title": "Chat-with-AI interface for project + launch ops",
+      "description": "Add conversational UI to dashboard that reads/writes projects, tasks, checklist items, launch phases via Anthropic API. Every 2026 competitor has this; LaunchPad only has one-shot launch strategy generation. This closes the single biggest perception gap vs Asana/Notion/Dart/Linear.",
+      "priority": "high",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "New route /dashboard/chat or floating <AssistantPanel/>. Use Anthropic SDK with tool-use (project.list, project.update, task.create, checklist.toggle). Wrap existing /api/projects and /api/launches endpoints as tools. Project ai/launch-strategist.ts is the seed pattern.",
+      "acceptance_criteria": [
+        "User can ask 'show me at-risk projects' and get a list",
+        "User can ask 'add a pre-launch audit to chessmind' and it creates the checklist",
+        "Tool calls stream with visible reasoning",
+        "Chat history persists per user across sessions"
+      ]
+    },
+    {
+      "title": "Autonomous AI agent delegation for launch tasks",
+      "description": "Enable the launch-task generator to run agents that execute subtasks autonomously (e.g., 'write brand voice draft', 'generate Product Hunt copy', 'run competitor audit'). Asana Launch Planner, ClickUp Super Agents, Dart AI Agents all do this. LaunchPad's task generator is passive today.",
+      "priority": "high",
+      "source": "claude",
+      "category": "ai-feature",
+      "implementation_hints": "Extend lib/launches/task-generator.ts with task.auto_executable flag. New /api/launches/[id]/tasks/[taskId]/agent endpoint triggers Anthropic agent loop. Results persist as activity_log entries with source='agent'.",
+      "acceptance_criteria": [
+        "Each task has an 'Agent' action if auto-executable",
+        "Clicking Agent opens a pane showing live agent reasoning",
+        "Agent output attaches to task as comment + asset",
+        "User can approve/reject agent work before marking done"
+      ]
+    },
+    {
+      "title": "Cross-project portfolio analytics dashboard",
+      "description": "Aggregate PostHog analytics across all launches into a single dashboard: total visitors/signups/MRR across portfolio, per-project sparklines, cross-project comparison. LaunchPad has per-launch analytics; no one else does cross-project. This is a moat-deepening white-space feature.",
+      "priority": "high",
+      "source": "claude",
+      "category": "white-space",
+      "implementation_hints": "New /dashboard/analytics route. Aggregate /api/launches/[id]/analytics server-side. Use existing NumberTicker component. Consider Recharts sparklines per project card.",
+      "acceptance_criteria": [
+        "Shows total active users, MRR, signups across all launches",
+        "Per-project sparkline (last 30 days)",
+        "Filter by stage (pre_launch vs launched vs scaling)",
+        "Click-through to per-project analytics tab"
+      ]
+    },
+    {
+      "title": "Native mobile app (Expo) — read-mostly MVP",
+      "description": "Pipeline board + project detail + launch readiness score on iOS/Android. Linear/Notion/Asana/ClickUp all have native. Currently LaunchPad is web-only. Use /mobile-app skill with Expo + NativeWind.",
+      "priority": "high",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "Run /mobile-app skill. Mirror dashboard routes. Supabase Auth with SecureStore. API calls via existing endpoints. RevenueCat for SaaS pivot.",
+      "acceptance_criteria": [
+        "Kanban pipeline board visible + swipeable",
+        "Project detail shows checklist, health, activity",
+        "Launch detail shows readiness + tasks",
+        "Push notification when audit is due"
+      ]
+    },
+    {
+      "title": "MCP server exposing LaunchPad to Claude Desktop / Code",
+      "description": "Expose projects, launches, checklist, features as MCP tools. Linear, Notion, Plane, Dart all have MCP. LaunchPad's audience uses Claude Code — this bridges the ecosystem.",
+      "priority": "high",
+      "source": "claude",
+      "category": "ai-feature",
+      "implementation_hints": "New /api/mcp/route.ts or separate Node worker. Expose tools: list_projects, get_project, create_feature, toggle_checklist_item, list_launches, update_launch_task. Reuse existing lib/supabase and lib/projects/types.",
+      "acceptance_criteria": [
+        "User can install 'launchpad' MCP server in Claude Desktop",
+        "Claude can list projects, read health, add features",
+        "Auth via API key (stored per-user in launchdeck_api_keys)",
+        "Documented in /docs/mcp"
+      ]
+    },
+    {
+      "title": "Build-in-public public micro-site per project",
+      "description": "Public /p/[slug] page showing project progress, milestones, latest activity — shareable on Twitter/LinkedIn. Attacks WIP's core offer (ship log + social). WIP has 3,694 makers LaunchPad could siphon.",
+      "priority": "high",
+      "source": "claude",
+      "category": "white-space",
+      "implementation_hints": "New /p/[slug]/page.tsx (public, no auth). Pull launchdeck_projects + launchdeck_activity_log (only public-flagged entries). SSR for SEO. Add 'is_public' to launchdeck_projects + 'is_public' per activity log entry.",
+      "acceptance_criteria": [
+        "User can toggle project visibility to public",
+        "Public page shows project name, logo, stage, milestones, recent shipped items",
+        "OG image auto-generated (existing Satori pipeline from Content Flywheel)",
+        "Page ranks in Google for project name"
+      ]
+    },
+    {
+      "title": "AI launch coach — proactive recommendations from health score",
+      "description": "Each project gets an 'Alfred'-style AI coach that reviews health score, audit findings, and checklist progress, then suggests next actions. Operately has Alfred for goals; nobody has it for launches.",
+      "priority": "high",
+      "source": "claude",
+      "category": "match-differentiator",
+      "implementation_hints": "Extend lib/ai/launch-strategist.ts with 'coach' mode. Trigger on project detail load (cached 24hr). Return structured {blockers, next_actions, risk_flags}. Render in new <LaunchCoach/> widget.",
+      "acceptance_criteria": [
+        "Each project shows 'Coach' panel with 3-5 recommendations",
+        "Recommendations cite specific checklist/audit findings",
+        "Click-to-action: creates feature or toggles checklist",
+        "Weekly summary email of coach insights"
+      ]
+    },
+    {
+      "title": "Public REST API + webhooks",
+      "description": "Expose CRUD endpoints for projects, features, launches with bearer auth. Webhooks for project_created, stage_changed, launch_completed. Linear/Notion/Asana/ClickUp/Airtable/Plane all have. LaunchPad has none.",
+      "priority": "high",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "Add launchdeck_api_keys table (user_id, key_hash, name). Middleware at /api/v1/* validates Bearer token. Add launchdeck_webhooks table (url, events, user_id). Emit from existing API routes.",
+      "acceptance_criteria": [
+        "User can generate + revoke API keys in Settings",
+        "GET /api/v1/projects returns list",
+        "POST /api/v1/projects creates project",
+        "Webhook POSTs fire on project updates",
+        "Docs at /docs/api"
+      ]
+    },
+    {
+      "title": "Slack / Discord / Telegram launch-day notifications",
+      "description": "When a launch enters week-0, notify on configured channel. Asana+Slack is deep; workstreams.ai is Slack-native. LaunchPad has none. Launch day is when a solo founder most wants accountability.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "integration",
+      "implementation_hints": "Add launchdeck_integrations table. Use Slack incoming webhook URL, Telegram bot token, Discord webhook. Trigger on launch stage transition in /api/launches/[id] PATCH.",
+      "acceptance_criteria": [
+        "Settings page to add Slack/Discord/Telegram hooks",
+        "Notification on stage=launch",
+        "Notification on audit findings",
+        "Opt-in per integration + per event type"
+      ]
+    },
+    {
+      "title": "Template marketplace (user-shared launch playbooks)",
+      "description": "Let users publish their project templates. Notion/Asana/ClickUp template galleries drive network effects. LaunchPad has 3 built-in templates; a marketplace lets community add launch playbooks.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "white-space",
+      "implementation_hints": "Add launchdeck_templates.is_public + author_id. Public /templates page lists community templates. 'Use this template' copies to user's account.",
+      "acceptance_criteria": [
+        "User can publish custom template as public",
+        "/templates public page shows community submissions",
+        "One-click 'use template' creates new project",
+        "Author attribution + usage count"
+      ]
+    },
+    {
+      "title": "Command palette (cmd+k)",
+      "description": "Global fuzzy command palette: jump to project, run action, create item. Linear/Notion/Height/Dart all have. Signals 'fast tool' brand.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "Add <CommandPalette/> component (cmdk library). Index: all projects, launches, checklist actions, navigation. Keyboard shortcut cmd+k already reserved.",
+      "acceptance_criteria": [
+        "Cmd+K opens palette",
+        "Fuzzy search across projects, launches, commands",
+        "Keyboard-only navigation (arrow keys + enter)",
+        "Can create new project from palette"
+      ]
+    },
+    {
+      "title": "Public roadmap + changelog page",
+      "description": "Public /changelog shows recent shipped features. Public /roadmap shows upcoming. Linear/Plane/Operately/Capacities/Sunsama all do this. Trust signal + SEO.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "New /changelog/page.tsx reading from launchdeck_activity_log where source='release' OR flagged. /roadmap from launchdeck_features where project=launchpad-itself + is_public.",
+      "acceptance_criteria": [
+        "/changelog lists releases chronologically",
+        "/roadmap shows next/soon/shipping",
+        "RSS feed available",
+        "Auto-updates when release logged"
+      ]
+    },
+    {
+      "title": "Zapier / Make integration",
+      "description": "Publish LaunchPad to Zapier + Make directories. Triggers: project_created, stage_changed. Actions: add_feature, toggle_checklist. Table stakes — every incumbent has.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "integration",
+      "implementation_hints": "Depends on Public REST API + webhooks shipping first. Build Zapier app (CLI), Make custom app. Submit to directories.",
+      "acceptance_criteria": [
+        "Zapier LaunchPad app approved + listed",
+        "Make LaunchPad app approved + listed",
+        "3+ trigger types, 5+ action types",
+        "Public connector docs"
+      ]
+    },
+    {
+      "title": "GitHub webhook integration",
+      "description": "Pull GitHub commits/PRs/releases into project activity feed. LaunchPad's audience lives on GitHub. Linear/Plane have deep GitHub; LaunchPad has none.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "integration",
+      "implementation_hints": "Add repo_url to launchdeck_projects (already in links). GitHub App with webhooks. Map to launchdeck_activity_log entries with source='github'. Optional auto-advance stage based on first deploy.",
+      "acceptance_criteria": [
+        "User connects GitHub account",
+        "Commits/PRs/releases appear in project activity",
+        "Merged PR to main = activity entry",
+        "First Vercel deploy = auto-advance from 'building' to 'pre_launch'"
+      ]
+    },
+    {
+      "title": "Vercel integration (unique to LaunchPad audience)",
+      "description": "Pull Vercel project deploys, domain status, build failures into activity feed. Nobody has this. LaunchPad's audience deploys to Vercel (including LaunchPad itself).",
+      "priority": "medium",
+      "source": "claude",
+      "category": "integration",
+      "implementation_hints": "Vercel API token per user. Link Vercel project_id to launchdeck_projects. Pull deploys via /v6/deployments. Surface domain status + last deploy in project card.",
+      "acceptance_criteria": [
+        "User connects Vercel account",
+        "Each LaunchPad project can map to a Vercel project",
+        "Last deploy shown on project card",
+        "Build failure = notification + activity entry"
+      ]
+    },
+    {
+      "title": "Weekly digest email",
+      "description": "Every Monday, email summarizing all projects: what shipped, what's at-risk, what's coming. Reengagement + context compression for busy solo founders.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "Vercel cron /api/cron/weekly-digest. Use Resend. Aggregate launchdeck_activity_log for last 7 days per user. Generate summary via Anthropic.",
+      "acceptance_criteria": [
+        "Runs every Monday 9am ET",
+        "Lists shipped features per project",
+        "Highlights at-risk (red health) projects",
+        "User can opt out"
+      ]
+    },
+    {
+      "title": "Goals / OKRs per project",
+      "description": "Add a Goals concept to each project: success criteria, target date, progress. Operately has goals, Asana has goals, Linear has Initiatives. Table-stake for 2026 PM.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "New launchdeck_goals table (project_id, title, target_date, success_criteria, progress). UI in project detail. Consider rolling up to portfolio view.",
+      "acceptance_criteria": [
+        "User can add goals to a project",
+        "Goal has target date + progress (0-100)",
+        "Goals appear in portfolio view",
+        "Overdue goals surface as health deductions"
+      ]
+    },
+    {
+      "title": "Task dependencies + blockers",
+      "description": "Mark a task as blocked by another. Asana/Linear/ClickUp/Airtable all have; Trello notably lacks. Signals real PM tool.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "Add blocks/blocked_by columns to launchdeck_features OR new launchdeck_feature_dependencies table. Show chain in UI. Block completion if prerequisites unmet.",
+      "acceptance_criteria": [
+        "User can mark feature A blocks feature B",
+        "UI shows blocker chain",
+        "Cannot mark B done if A not done",
+        "Critical path highlighted"
+      ]
+    },
+    {
+      "title": "Vibe Kanban bridge — show Claude Code session status per project",
+      "description": "Pull Vibe Kanban state for each project's repo into LaunchPad activity. LaunchPad users run Claude Code — showing agent work in progress closes the loop. Partner-not-compete with Vibe Kanban.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "integration",
+      "implementation_hints": "Since Vibe Kanban is local/self-hosted, use local file watcher OR user-configured webhook from their Vibe Kanban instance. Map to launchdeck_activity_log entries with source='vibe_kanban'.",
+      "acceptance_criteria": [
+        "User can link project to Vibe Kanban repo path",
+        "Agent tasks appear in LaunchPad activity feed",
+        "Task completion triggers activity entry",
+        "Works offline via local file watch"
+      ]
+    },
+    {
+      "title": "Financial tracking per project (MRR, revenue, runway)",
+      "description": "Add manual or Stripe-pulled revenue/MRR/cost per project. WIP has revenue metrics — closest competitor. Solo-founder key metric.",
+      "priority": "medium",
+      "source": "claude",
+      "category": "white-space",
+      "implementation_hints": "New launchdeck_project_metrics table (project_id, date, metric_type, value). UI: manual entry + Stripe/Lemon Squeezy webhook. Chart in project detail.",
+      "acceptance_criteria": [
+        "User can log MRR, revenue, cost",
+        "Auto-pull from Stripe if connected",
+        "Chart showing trend",
+        "Rollup in portfolio analytics"
+      ]
+    },
+    {
+      "title": "Export to markdown / PDF / CSV",
+      "description": "Export project or launch plan as MD, PDF, CSV. Table-stake for data portability — reduces lock-in anxiety in SaaS buyers.",
+      "priority": "low",
+      "source": "claude",
+      "category": "table-stakes",
+      "implementation_hints": "New /api/projects/[slug]/export route. Use existing types. PDF via @react-pdf/renderer. CSV via stringify.",
+      "acceptance_criteria": [
+        "Button on project detail: Export as MD/PDF/CSV",
+        "Full project data included (checklist, features, audits)",
+        "PDF has LaunchPad branding",
+        "Respects user's timezone"
+      ]
+    },
+    {
+      "title": "Competitor auto-audit as recurring audit type",
+      "description": "Add 'competitor' to audit_types. Runs this very skill quarterly per project. Unique to LaunchPad's meta use case.",
+      "priority": "low",
+      "source": "claude",
+      "category": "white-space",
+      "implementation_hints": "Extend launchdeck_audits with audit_type='competitor'. Trigger runs this /competitor-analysis skill via a Claude API call. Store findings in launchdeck_audit_runs.",
+      "acceptance_criteria": [
+        "SaaS template includes competitor audit (90-day interval)",
+        "Audit run generates findings",
+        "Findings link to created features (source='audit')",
+        "User can adjust interval"
+      ]
+    },
+    {
+      "title": "Archive vs Sunset distinction",
+      "description": "Current pipeline has 'archived' as terminal. Add 'sunset' to separate 'I actively stopped this' from 'I sold it' from 'I paused for later'. Portfolio founders hit this often.",
+      "priority": "low",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "Add stage enums: 'paused', 'sunset', 'sold'. Update PipelineBoard columns. Migrate existing 'archived' into one of these.",
+      "acceptance_criteria": [
+        "3 terminal states: paused, sunset, sold",
+        "Pipeline board shows them as collapsed group",
+        "Filter toggle to show/hide terminal"
+      ]
+    },
+    {
+      "title": "Health score trend line chart",
+      "description": "Health score is currently a point-in-time number. Show trend over time so founders see trajectory.",
+      "priority": "low",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "Snapshot launchdeck_projects.health_score daily via cron into launchdeck_health_history. Render sparkline in ProjectDetailModal using Recharts.",
+      "acceptance_criteria": [
+        "Daily snapshot of health score",
+        "Sparkline in project detail",
+        "Hover shows date + score",
+        "90-day default window"
+      ]
+    },
+    {
+      "title": "PostHog session replay embed per launched product",
+      "description": "Extend launch analytics tab to include session replays. LaunchPad already integrates PostHog; adding replays deepens the analytics moat.",
+      "priority": "low",
+      "source": "claude",
+      "category": "polish",
+      "implementation_hints": "Extend /api/launches/[id]/analytics to pull from PostHog /api/projects/{id}/session_recordings. Embed player in launch detail.",
+      "acceptance_criteria": [
+        "Replays tab in launch detail",
+        "Last 10 replays listed",
+        "Click-to-play embedded",
+        "Filter by user vs anonymous"
+      ]
+    }
+  ]
+}
