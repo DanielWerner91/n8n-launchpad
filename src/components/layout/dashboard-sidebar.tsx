@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Calendar, Menu, X, Settings, Target } from "lucide-react";
+import { LayoutDashboard, Rocket, Activity, Plus, CalendarDays, Calendar, Menu, X, Settings, Target, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { UserMenu } from "./user-menu";
 const navItems = [
   { href: "/dashboard/focus", label: "Focus", icon: Target, exact: true },
   { href: "/dashboard", label: "Pipeline", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/chat", label: "Copilot", icon: Sparkles, exact: true },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, exact: true },
   { href: "/dashboard/timeline", label: "Timeline", icon: CalendarDays, exact: true },
   { href: "/dashboard/launches", label: "Launch Plans", icon: Rocket, exact: false },
