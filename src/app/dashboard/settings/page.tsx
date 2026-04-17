@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Save, GitFork, Cloud, Database, FolderOpen, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Save, GitFork, Cloud, Database, FolderOpen, Check, Terminal, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { UserProfile } from "@/lib/projects/types";
@@ -269,6 +269,21 @@ export default function SettingsPage() {
           })}
         </div>
       </div>
+
+      {/* Developer settings link */}
+      <Link
+        href="/dashboard/settings/developer"
+        className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted/40"
+      >
+        <div className="flex items-center gap-3">
+          <Terminal className="size-4 text-foreground" />
+          <div>
+            <div className="text-[13px] font-semibold text-foreground">Developer</div>
+            <div className="text-[11px] text-muted-foreground">API keys and webhooks</div>
+          </div>
+        </div>
+        <ArrowRight className="size-4 text-muted-foreground" />
+      </Link>
 
       {/* Save */}
       <button

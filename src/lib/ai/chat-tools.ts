@@ -332,7 +332,7 @@ export const CHAT_TOOLS: Record<string, ToolDef> = {
       const limit = typeof input.limit === "number" ? Math.min(input.limit, 100) : 50;
       const { data, error } = await supabase
         .from("launches")
-        .select("id,app_name,niche,status,launch_target_date,created_at")
+        .select("id,app_name,niche,status,launch_timeline,created_at")
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw new Error(error.message);
