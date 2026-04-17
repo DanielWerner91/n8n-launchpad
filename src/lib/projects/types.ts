@@ -116,6 +116,28 @@ export interface ActivityLogEntry {
   project?: Pick<Project, "name" | "slug" | "icon_emoji">;
 }
 
+export type FeatureStatus = "backlog" | "in_progress" | "done";
+
+export const FEATURE_STATUSES: { value: FeatureStatus; label: string; dot: string }[] = [
+  { value: "backlog", label: "Backlog", dot: "bg-slate-400" },
+  { value: "in_progress", label: "In Progress", dot: "bg-blue-500" },
+  { value: "done", label: "Done", dot: "bg-emerald-500" },
+];
+
+export interface Feature {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  status: FeatureStatus;
+  priority: Priority | null;
+  sort_order: number;
+  source: string;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Milestone {
   id: string;
   project_id: string;

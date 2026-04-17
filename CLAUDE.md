@@ -68,6 +68,7 @@ Shared Supabase instance `dtabpbuqodditvhsbpur`. Tables:
 **Project management (prefixed `launchdeck_`):**
 - `launchdeck_projects` — id, slug, name, description, stage, health, health_score, icon_emoji, logo_url, labels, priority, due_date, cover_color, links, metadata
 - `launchdeck_checklist_items` — id, project_id, category, label, is_completed, sort_order
+- `launchdeck_features` — id, project_id, title, description, status (backlog/in_progress/done), priority, source, sort_order
 - `launchdeck_audits` — id, project_id, audit_type, interval_days, last_completed_at, next_due_at
 - `launchdeck_audit_runs` — id, audit_id, project_id, findings, source
 - `launchdeck_activity_log` — id, project_id, action, details, source
@@ -89,6 +90,10 @@ Shared Supabase instance `dtabpbuqodditvhsbpur`. Tables:
 | PATCH | `/api/projects/[slug]/checklist` | Toggle checklist item |
 | GET/POST | `/api/projects/[slug]/comments` | Get/add comments |
 | GET | `/api/projects/[slug]/detail` | Full detail (checklist + audits + activity) |
+| GET | `/api/projects/[slug]/features` | List features (filter: ?status=) |
+| POST | `/api/projects/[slug]/features` | Add feature(s). Body: `{title}`, or `{features:[{title,description?,status?,priority?}]}`. Set `source:"claude"` when Claude is writing |
+| PATCH | `/api/projects/[slug]/features/[id]` | Update title/description/status/priority/sort_order |
+| DELETE | `/api/projects/[slug]/features/[id]` | Delete feature |
 
 ### Launches
 | Method | Path | Purpose |
@@ -100,6 +105,23 @@ Shared Supabase instance `dtabpbuqodditvhsbpur`. Tables:
 | PATCH | `/api/launches/[id]/tasks/[taskId]` | Update task |
 | GET | `/api/launches/[id]/analytics` | PostHog analytics |
 | GET | `/api/launches/[id]/readiness` | Readiness score |
+
+## Dumping features from Claude Code
+
+When the user asks Claude to "add a feature to project X" (or dumps a list of features for a project), write them to `launchdeck_features` via the Supabase MCP on project `dtabpbuqodditvhsbpur`. Use `source = 'claude'` so the UI badges them.
+
+```sql
+insert into launchdeck_features (project_id, title, description, source)
+select id, 'Feature title', 'Optional notes', 'claude'
+from launchdeck_projects where slug = '<project-slug>';
+```
+
+To recall pending work later:
+```sql
+select title, description, priority, status from launchdeck_features
+where project_id = (select id from launchdeck_projects where slug = '<project-slug>')
+  and status <> 'done' order by priority nulls last, created_at;
+```
 
 ## Keyboard Shortcuts (dashboard)
 - `/` — Focus search

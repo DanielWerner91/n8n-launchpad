@@ -9,6 +9,7 @@ import {
   Clock, AlertCircle, Shield, Sparkles, Scale, Zap,
   Loader2, CheckCircle, Tag, Flag, MessageSquare, Send,
   ChevronDown, ChevronRight, Terminal, BookOpen, CircleCheck,
+  Plus, Trash2, Lightbulb,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
@@ -16,8 +17,8 @@ import { cn } from "@/lib/utils";
 import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
 import { AISummaryWidget } from "@/components/pipeline/ai-summary-widget";
 import { AnalyticsWidget } from "@/components/pipeline/analytics-widget";
-import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory } from "@/lib/projects/types";
-import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
+import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory, Feature, FeatureStatus } from "@/lib/projects/types";
+import { STAGES, LABELS, PRIORITIES, FEATURE_STATUSES } from "@/lib/projects/types";
 
 const categoryLabels: Record<ChecklistCategory, string> = {
   validation: "Idea Validation",
@@ -56,7 +57,10 @@ export default function ProjectDetailPage() {
   const [comments, setComments] = useState<{ id: string; content: string; source: string; created_at: string }[]>([]);
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [activeTab, setActiveTab] = useState<"checklist" | "audits" | "comments" | "activity">("checklist");
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [newFeature, setNewFeature] = useState("");
+  const [submittingFeature, setSubmittingFeature] = useState(false);
+  const [activeTab, setActiveTab] = useState<"checklist" | "features" | "audits" | "comments" | "activity">("checklist");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -86,6 +90,12 @@ export default function ProjectDetailPage() {
         if (commentsRes.ok) {
           setComments(await commentsRes.json());
         }
+
+        // Fetch features
+        const featuresRes = await fetch(`/api/projects/${slug}/features`);
+        if (featuresRes.ok) {
+          setFeatures(await featuresRes.json());
+        }
       } catch {
         toast.error("Failed to load project");
       } finally {
@@ -114,6 +124,61 @@ export default function ProjectDetailPage() {
       toast.error("Failed to add comment");
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const addFeature = async () => {
+    const lines = newFeature.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) return;
+    setSubmittingFeature(true);
+    try {
+      const res = await fetch(`/api/projects/${slug}/features`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ features: lines.map((title) => ({ title })) }),
+      });
+      if (res.ok) {
+        const created: Feature[] = await res.json();
+        setFeatures((prev) => [...created, ...prev]);
+        setNewFeature("");
+        toast.success(created.length === 1 ? "Feature added" : `${created.length} features added`);
+      } else {
+        toast.error("Failed to add feature");
+      }
+    } catch {
+      toast.error("Failed to add feature");
+    } finally {
+      setSubmittingFeature(false);
+    }
+  };
+
+  const updateFeature = async (id: string, patch: Partial<Feature>) => {
+    const prev = features;
+    setFeatures((list) => list.map((f) => (f.id === id ? { ...f, ...patch } : f)));
+    try {
+      const res = await fetch(`/api/projects/${slug}/features/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error();
+      const updated = await res.json();
+      setFeatures((list) => list.map((f) => (f.id === id ? updated : f)));
+    } catch {
+      setFeatures(prev);
+      toast.error("Failed to update feature");
+    }
+  };
+
+  const deleteFeature = async (id: string) => {
+    const prev = features;
+    setFeatures((list) => list.filter((f) => f.id !== id));
+    try {
+      const res = await fetch(`/api/projects/${slug}/features/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+    } catch {
+      setFeatures(prev);
+      toast.error("Failed to delete feature");
     }
   };
 
@@ -349,7 +414,7 @@ export default function ProjectDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {(["checklist", "audits", "comments", "activity"] as const).map((tab) => (
+        {(["checklist", "features", "audits", "comments", "activity"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -358,7 +423,15 @@ export default function ProjectDetailPage() {
               activeTab === tab ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
-            {tab === "checklist" ? `Checklist (${completedCount}/${totalCount})` : tab === "audits" ? `Audits (${audits.length})` : tab === "comments" ? `Comments (${comments.length})` : `Activity (${activity.length})`}
+            {tab === "checklist"
+              ? `Checklist (${completedCount}/${totalCount})`
+              : tab === "features"
+                ? `Features (${features.filter((f) => f.status !== "done").length}/${features.length})`
+                : tab === "audits"
+                  ? `Audits (${audits.length})`
+                  : tab === "comments"
+                    ? `Comments (${comments.length})`
+                    : `Activity (${activity.length})`}
           </button>
         ))}
       </div>
@@ -449,6 +522,122 @@ export default function ProjectDetailPage() {
           ))}
           {Object.keys(grouped).length === 0 && (
             <p className="text-center py-8 text-muted-foreground">No checklist items. Create from a template to populate.</p>
+          )}
+        </div>
+      )}
+
+      {activeTab === "features" && (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <textarea
+              value={newFeature}
+              onChange={(e) => setNewFeature(e.target.value)}
+              placeholder="Dump features here. One per line — bulk adds supported."
+              rows={3}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none resize-none"
+              onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) addFeature(); }}
+            />
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground/50">Cmd+Enter to add (one per line)</span>
+              <button
+                onClick={addFeature}
+                disabled={submittingFeature || !newFeature.trim()}
+                className="flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-1.5 text-[12px] font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                <Plus className="size-3" />
+                {submittingFeature ? "Adding..." : "Add"}
+              </button>
+            </div>
+          </div>
+
+          {features.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card py-12 text-center">
+              <Lightbulb className="mx-auto size-8 text-muted-foreground/20" />
+              <p className="mt-2 text-[13px] text-muted-foreground">No features yet. Add ideas above or ask Claude to dump some.</p>
+            </div>
+          ) : (
+            FEATURE_STATUSES.map((status) => {
+              const items = features.filter((f) => f.status === status.value);
+              if (items.length === 0) return null;
+              return (
+                <div key={status.value} className="rounded-xl border border-border bg-card p-5">
+                  <h3 className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className={cn("size-2 rounded-full", status.dot)} />
+                    {status.label} ({items.length})
+                  </h3>
+                  <ul className="space-y-1">
+                    {items.map((f) => {
+                      const priority = PRIORITIES.find((p) => p.value === f.priority);
+                      return (
+                        <li key={f.id} className="group flex items-start gap-2.5 rounded-lg px-2 py-1.5 hover:bg-muted">
+                          <button
+                            onClick={() => updateFeature(f.id, { status: f.status === "done" ? "backlog" : "done" })}
+                            className="mt-0.5 flex shrink-0 items-center"
+                            title={f.status === "done" ? "Mark as backlog" : "Mark as done"}
+                          >
+                            <span className={cn(
+                              "flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                              f.status === "done" ? "border-emerald-500 bg-emerald-500 text-white" : "border-border bg-card"
+                            )}>
+                              {f.status === "done" && <Check className="size-3" />}
+                            </span>
+                          </button>
+                          <div className="flex flex-1 flex-col gap-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "text-[13px] flex-1 truncate",
+                                f.status === "done" ? "text-muted-foreground line-through" : "text-foreground"
+                              )}>
+                                {f.title}
+                              </span>
+                              {f.source !== "web" && (
+                                <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">{f.source}</span>
+                              )}
+                              {priority && (
+                                <span className={cn("flex items-center gap-1 text-[11px]", priority.color)}>
+                                  <Flag className="size-3" />{priority.label}
+                                </span>
+                              )}
+                            </div>
+                            {f.description && (
+                              <p className="text-[12px] text-muted-foreground whitespace-pre-wrap">{f.description}</p>
+                            )}
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <select
+                              value={f.status}
+                              onChange={(e) => updateFeature(f.id, { status: e.target.value as FeatureStatus })}
+                              className="rounded border border-border bg-card px-1.5 py-0.5 text-[11px]"
+                            >
+                              {FEATURE_STATUSES.map((s) => (
+                                <option key={s.value} value={s.value}>{s.label}</option>
+                              ))}
+                            </select>
+                            <select
+                              value={f.priority || ""}
+                              onChange={(e) => updateFeature(f.id, { priority: (e.target.value || null) as Feature["priority"] })}
+                              className="rounded border border-border bg-card px-1.5 py-0.5 text-[11px]"
+                            >
+                              <option value="">—</option>
+                              {PRIORITIES.map((p) => (
+                                <option key={p.value} value={p.value}>{p.label}</option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => deleteFeature(f.id)}
+                              className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
+                              title="Delete"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })
           )}
         </div>
       )}
