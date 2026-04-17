@@ -16,6 +16,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
 import { AISummaryWidget } from "@/components/pipeline/ai-summary-widget";
+import { LaunchCoach } from "@/components/pipeline/launch-coach";
 import { AnalyticsWidget } from "@/components/pipeline/analytics-widget";
 import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory, Feature, FeatureStatus } from "@/lib/projects/types";
 import { STAGES, LABELS, PRIORITIES, FEATURE_STATUSES } from "@/lib/projects/types";
@@ -399,6 +400,9 @@ export default function ProjectDetailPage() {
 
       {/* AI Summary + Smart Nudges */}
       <AISummaryWidget slug={slug} />
+
+      {/* Launch Coach */}
+      <LaunchCoach slug={slug} />
 
       {/* Live status */}
       {(project.links?.github_url || project.links?.vercel_url) && (
