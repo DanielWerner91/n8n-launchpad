@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { ProjectStatusWidget } from "@/components/pipeline/project-status-widget";
 import { AISummaryWidget } from "@/components/pipeline/ai-summary-widget";
 import { LaunchCoach } from "@/components/pipeline/launch-coach";
+import { PublishToggle } from "@/components/pipeline/publish-toggle";
 import { AnalyticsWidget } from "@/components/pipeline/analytics-widget";
 import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory, Feature, FeatureStatus } from "@/lib/projects/types";
 import { STAGES, LABELS, PRIORITIES, FEATURE_STATUSES } from "@/lib/projects/types";
@@ -403,6 +404,13 @@ export default function ProjectDetailPage() {
 
       {/* Launch Coach */}
       <LaunchCoach slug={slug} />
+
+      {/* Publish toggle */}
+      <PublishToggle
+        slug={slug}
+        initialIsPublic={Boolean((project as { is_public?: boolean }).is_public)}
+        initialTagline={(project as { public_tagline?: string | null }).public_tagline ?? null}
+      />
 
       {/* Live status */}
       {(project.links?.github_url || project.links?.vercel_url) && (
