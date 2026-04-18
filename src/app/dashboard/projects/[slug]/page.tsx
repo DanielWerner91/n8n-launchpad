@@ -9,7 +9,7 @@ import {
   Clock, AlertCircle, Shield, Sparkles, Scale, Zap,
   Loader2, CheckCircle, Tag, Flag, MessageSquare, Send,
   ChevronDown, ChevronRight, Terminal, BookOpen, CircleCheck,
-  Plus, Trash2, Lightbulb,
+  Plus, Trash2, Lightbulb, Radar,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
@@ -62,6 +62,7 @@ export default function ProjectDetailPage() {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [newFeature, setNewFeature] = useState("");
   const [submittingFeature, setSubmittingFeature] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [activeTab, setActiveTab] = useState<"checklist" | "features" | "audits" | "comments" | "activity">("checklist");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -151,6 +152,27 @@ export default function ProjectDetailPage() {
       toast.error("Failed to add feature");
     } finally {
       setSubmittingFeature(false);
+    }
+  };
+
+  const runCompetitorScan = async () => {
+    if (scanning) return;
+    setScanning(true);
+    const toastId = toast.loading("Scanning competitors. This can take 1-2 minutes.");
+    try {
+      const res = await fetch(`/api/projects/${slug}/competitor-scan`, { method: "POST" });
+      const json = await res.json();
+      if (res.ok) {
+        const created: Feature[] = json.features || [];
+        setFeatures((prev) => [...created, ...prev]);
+        toast.success(`Added ${json.count} features from competitor scan`, { id: toastId });
+      } else {
+        toast.error(json.error || "Competitor scan failed", { id: toastId });
+      }
+    } catch {
+      toast.error("Competitor scan failed", { id: toastId });
+    } finally {
+      setScanning(false);
     }
   };
 
@@ -540,6 +562,25 @@ export default function ProjectDetailPage() {
 
       {activeTab === "features" && (
         <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                <Radar className="size-4 text-foreground" />
+              </div>
+              <div>
+                <h3 className="text-[13px] font-semibold text-foreground">Competitor scan</h3>
+                <p className="text-[12px] text-muted-foreground">Let Claude search the web for competitors and seed your backlog with features they already ship.</p>
+              </div>
+            </div>
+            <button
+              onClick={runCompetitorScan}
+              disabled={scanning}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-foreground px-3 py-1.5 text-[12px] font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+            >
+              {scanning ? <Loader2 className="size-3 animate-spin" /> : <Radar className="size-3" />}
+              {scanning ? "Scanning..." : "Run competitor scan"}
+            </button>
+          </div>
           <div className="rounded-xl border border-border bg-card p-4">
             <textarea
               value={newFeature}
