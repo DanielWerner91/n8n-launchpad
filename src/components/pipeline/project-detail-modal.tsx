@@ -2,18 +2,19 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Check, ExternalLink, Code, Globe, Database,
   Clock, AlertCircle, Shield, Sparkles, Scale, Zap,
-  Loader2, CheckCircle, Tag,
+  Loader2, CheckCircle, Tag, Flag, Lightbulb, ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { HealthBadge } from "./health-badge";
-import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory, HealthStatus } from "@/lib/projects/types";
-import { STAGES, LABELS, PRIORITIES } from "@/lib/projects/types";
+import type { Project, ChecklistItem, Audit, ActivityLogEntry, ChecklistCategory, HealthStatus, Feature } from "@/lib/projects/types";
+import { STAGES, LABELS, PRIORITIES, FEATURE_STATUSES } from "@/lib/projects/types";
 
 const categoryLabels: Record<ChecklistCategory, string> = {
   validation: "Idea Validation",
@@ -51,8 +52,9 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [audits, setAudits] = useState<Audit[]>([]);
   const [activity, setActivity] = useState<ActivityLogEntry[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"checklist" | "audits" | "activity">("checklist");
+  const [activeTab, setActiveTab] = useState<"checklist" | "features" | "audits" | "activity">("checklist");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
 
@@ -65,15 +67,21 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
 
     async function loadDetail() {
       try {
-        const res = await fetch(`/api/projects/${project!.slug}/detail`);
-        if (res.ok) {
-          const detail = await res.json();
+        const [detailRes, featuresRes] = await Promise.all([
+          fetch(`/api/projects/${project!.slug}/detail`),
+          fetch(`/api/projects/${project!.slug}/features`),
+        ]);
+        if (detailRes.ok) {
+          const detail = await detailRes.json();
           setChecklist(detail.checklist_items || []);
           setAudits((detail.audits || []).map((a: Audit & { next_due_at: string | null }) => ({
             ...a,
             is_overdue: a.next_due_at ? new Date(a.next_due_at) < new Date() : false,
           })));
           setActivity(detail.activity || []);
+        }
+        if (featuresRes.ok) {
+          setFeatures(await featuresRes.json());
         }
       } catch {
         toast.error("Failed to load details");
@@ -250,9 +258,16 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
                   </div>
                 </div>
 
-                {/* Health badge */}
+                {/* Health badge + full detail link */}
                 <div className="mt-3 flex items-center gap-3">
                   <HealthBadge health={project.health as HealthStatus} score={project.health_score} />
+                  <Link
+                    href={`/dashboard/projects/${project.slug}`}
+                    className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-accent hover:bg-accent/10"
+                  >
+                    Open full details
+                    <ArrowUpRight className="size-3" />
+                  </Link>
                 </div>
               </div>
 
@@ -344,7 +359,7 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
 
               {/* Tabs */}
               <div className="flex gap-1 border-b border-border">
-                {(["checklist", "audits", "activity"] as const).map((tab) => (
+                {(["checklist", "features", "audits", "activity"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -354,6 +369,7 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
                     )}
                   >
                     {tab === "checklist" ? `Checklist (${completedCount}/${totalCount})`
+                      : tab === "features" ? `Features (${features.filter((f) => f.status !== "done").length}/${features.length})`
                       : tab === "audits" ? `Audits (${audits.length})`
                       : `Activity (${activity.length})`}
                   </button>
@@ -398,6 +414,82 @@ export function ProjectDetailModal({ project, onClose, onProjectUpdate }: Projec
                       ))}
                       {Object.keys(grouped).length === 0 && (
                         <p className="text-center py-8 text-muted-foreground text-sm">No checklist items yet.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === "features" && (
+                    <div className="space-y-3">
+                      {features.length === 0 ? (
+                        <div className="rounded-xl border border-border bg-card py-10 text-center">
+                          <Lightbulb className="mx-auto size-7 text-muted-foreground/20" />
+                          <p className="mt-2 text-[13px] text-muted-foreground">No features yet.</p>
+                          <Link
+                            href={`/dashboard/projects/${project.slug}`}
+                            className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-accent hover:underline"
+                          >
+                            Add in full details
+                            <ArrowUpRight className="size-3" />
+                          </Link>
+                        </div>
+                      ) : (
+                        FEATURE_STATUSES.map((status) => {
+                          const items = features.filter((f) => f.status === status.value);
+                          if (items.length === 0) return null;
+                          return (
+                            <div key={status.value} className="rounded-xl border border-border bg-card p-4">
+                              <h3 className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                <span className={cn("size-2 rounded-full", status.dot)} />
+                                {status.label} ({items.length})
+                              </h3>
+                              <ul className="space-y-0.5">
+                                {items.map((f) => {
+                                  const priority = PRIORITIES.find((p) => p.value === f.priority);
+                                  return (
+                                    <li key={f.id} className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-muted">
+                                      <span className={cn(
+                                        "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border",
+                                        f.status === "done" ? "border-emerald-500 bg-emerald-500 text-white" : "border-border bg-card"
+                                      )}>
+                                        {f.status === "done" && <Check className="size-3" />}
+                                      </span>
+                                      <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <span className={cn(
+                                            "text-[13px] flex-1 truncate",
+                                            f.status === "done" ? "text-muted-foreground line-through" : "text-foreground"
+                                          )}>
+                                            {f.title}
+                                          </span>
+                                          {f.source !== "web" && (
+                                            <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">{f.source}</span>
+                                          )}
+                                          {priority && (
+                                            <span className={cn("flex items-center gap-1 text-[11px]", priority.color)}>
+                                              <Flag className="size-3" />{priority.label}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {f.description && (
+                                          <p className="text-[12px] text-muted-foreground line-clamp-2">{f.description}</p>
+                                        )}
+                                      </div>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          );
+                        })
+                      )}
+                      {features.length > 0 && (
+                        <Link
+                          href={`/dashboard/projects/${project.slug}`}
+                          className="flex items-center justify-center gap-1 rounded-lg border border-dashed border-border py-2 text-[12px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          Manage features in full details
+                          <ArrowUpRight className="size-3" />
+                        </Link>
                       )}
                     </div>
                   )}
