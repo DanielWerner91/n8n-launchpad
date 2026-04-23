@@ -5,6 +5,7 @@ import { X, Keyboard } from "lucide-react";
 
 const shortcuts = [
   { category: "Navigation", items: [
+    { keys: ["Cmd", "K"], label: "Open command palette" },
     { keys: ["?"], label: "Show keyboard shortcuts" },
     { keys: ["/"], label: "Focus search" },
     { keys: ["Esc"], label: "Close overlay / clear selection" },

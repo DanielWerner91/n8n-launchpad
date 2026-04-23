@@ -11,6 +11,12 @@ export function Footer() {
             <span className="text-sm font-semibold text-foreground">LaunchPad</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/changelog" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Changelog
+            </Link>
+            <Link href="/roadmap" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Roadmap
+            </Link>
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
